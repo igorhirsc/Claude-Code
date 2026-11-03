@@ -1,8 +1,8 @@
-import { SectionPlaceholder } from '@/components/ui/SectionPlaceholder'
 import Hero from '@/components/sections/Hero'
 import Contact from '@/components/sections/Contact'
 import Collections from '@/components/sections/Collections'
 import Configurator from '@/components/sections/Configurator'
+import BrandStory from '@/components/sections/BrandStory'
 
 export default function Home() {
   return (
@@ -10,7 +10,7 @@ export default function Home() {
       <Hero />
       <Collections />
       <Configurator />
-      <SectionPlaceholder id="atelier" label="Ateliê" tone="dark" />
+      <BrandStory />
       <Contact />
     </>
   )
