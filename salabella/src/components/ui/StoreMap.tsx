@@ -84,7 +84,7 @@ const STREET_ADDRESS = ADDRESS_LINES[0].split(' — ')[0]
 const LABELS = [
   { text: 'AV. PAULISTA', x: -112, y: PAULISTA - 10 },
   { text: 'AL. SANTOS', x: -118, y: -126 },
-  { text: 'AL. LORENA', x: -262, y: LORENA - 6 },
+  { text: 'AL. LORENA', x: -200, y: LORENA - 6 },
   { text: 'R. OSCAR FREIRE', x: -10, y: 60 },
 ]
 

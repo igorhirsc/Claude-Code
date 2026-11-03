@@ -114,7 +114,7 @@ export function Header() {
           SALABELLA
         </NavLink>
 
-        <nav aria-label="Principal" className="hidden items-center gap-10 md:flex">
+        <nav aria-label="Principal" className="hidden items-center gap-7 md:flex lg:gap-10">
           {LINKS.map((l) => (
             <NavLink
               key={l.to}
@@ -158,14 +158,14 @@ export function Header() {
             target="_blank"
             rel="noreferrer"
             className={clsx(
-              'eyebrow hidden items-center gap-2 rounded-full border px-5 py-2.5 transition-colors duration-200 sm:inline-flex',
+              'eyebrow hidden items-center gap-2 rounded-full border px-5 py-2.5 whitespace-nowrap transition-colors duration-200 sm:inline-flex md:max-lg:size-10 md:max-lg:justify-center md:max-lg:px-0',
               onDark
                 ? 'border-linen-50/70 text-linen-50 hover:border-brass-300 hover:bg-brass-300 hover:text-ink-900'
                 : 'border-brass-400 text-ink-900 hover:border-ink-900 hover:bg-ink-900 hover:text-linen-50',
             )}
           >
             <WhatsAppIcon size={15} />
-            Fale conosco
+            <span className="md:max-lg:sr-only">Fale conosco</span>
           </a>
 
           <button

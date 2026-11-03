@@ -519,7 +519,7 @@ export default function Contato() {
                         <textarea
                           id="contato-mensagem"
                           name="mensagem"
-                          rows={5}
+                          rows={7}
                           required
                           placeholder=" "
                           value={values.mensagem}
@@ -527,7 +527,7 @@ export default function Contato() {
                           onBlur={() => blur('mensagem')}
                           aria-invalid={!!errors.mensagem || undefined}
                           aria-describedby={describedBy('mensagem')}
-                          className={clsx(controlBase, borderFor('mensagem'), 'min-h-40 resize-y')}
+                          className={clsx(controlBase, borderFor('mensagem'), 'min-h-48 resize-y')}
                         />
                         <label htmlFor="contato-mensagem" className={clsx(labelBase, labelResting, labelFloats)}>
                           Mensagem<span aria-hidden="true"> *</span>
@@ -582,7 +582,7 @@ export default function Contato() {
                   <p id="contato-showroom" className="eyebrow text-clay-600">
                     Showroom Jardins
                   </p>
-                  <dl className="mt-6 space-y-6">
+                  <dl className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                     <SideItem icon={<PinIcon size={17} />} label="Endereço">
                       <a
                         href={MAPS_URL}
@@ -590,8 +590,11 @@ export default function Contato() {
                         rel="noreferrer"
                         className="underline decoration-ink-900/25 underline-offset-4 transition-colors duration-200 hover:decoration-ink-900"
                       >
-                        {ADDRESS_LINES[0]}
-                        <br />
+                        {ADDRESS_LINES[0].split(' — ').map((part) => (
+                          <span key={part} className="block">
+                            {part}
+                          </span>
+                        ))}
                         {ADDRESS_LINES[1]}
                       </a>
                     </SideItem>
@@ -609,7 +612,7 @@ export default function Contato() {
                   >
                     <span className="inline-flex items-center gap-2.5">
                       <WhatsAppIcon size={16} />
-                      Agendar visita pelo WhatsApp
+                      Agendar visita
                     </span>
                     <ArrowUpRightIcon size={15} />
                   </a>
