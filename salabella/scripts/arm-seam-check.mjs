@@ -111,7 +111,7 @@ for (const v of VIEWS) {
     window.__aurora.setMask(true)
     const st = document.createElement('style')
     st.id = 'seam-mask'
-    st.textContent = '#configurador [data-stage-overlay], #configurador canvas ~ div { visibility: hidden !important }'
+    st.textContent = '#configurador [data-stage-overlay], #configurador [data-callout-pill] { display: none !important }'
     document.head.append(st)
   })
   await page.waitForTimeout(400)

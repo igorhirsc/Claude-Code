@@ -49,7 +49,7 @@ export function DimensionCallout({ def, label, value, compact = false }: Dimensi
     if (Math.abs(fade.current - prev) > 1e-3) invalidate()
     const o = fade.current
     dotMat.opacity = o
-    if (lineRef.current) (lineRef.current.material as THREE.Material & { opacity: number }).opacity = o * 0.9
+    if (lineRef.current) (lineRef.current.material as THREE.Material & { opacity: number }).opacity = o
     if (pillRef.current) {
       pillRef.current.style.opacity = String(o)
       pillRef.current.style.visibility = o < 0.02 ? 'hidden' : 'visible'
@@ -61,7 +61,7 @@ export function DimensionCallout({ def, label, value, compact = false }: Dimensi
       <mesh position={anchor} material={dotMat} renderOrder={2}>
         <sphereGeometry args={[0.0105, 20, 14]} />
       </mesh>
-      <Line ref={lineRef} points={points} color={palette.brass500} lineWidth={1.1} transparent depthWrite={false} />
+      <Line ref={lineRef} points={points} color={palette.brass500} lineWidth={1.6} transparent depthWrite={false} />
       <Html
         position={end}
         zIndexRange={[20, 10]}
@@ -78,6 +78,7 @@ export function DimensionCallout({ def, label, value, compact = false }: Dimensi
       >
         <div
           ref={pillRef}
+          data-callout-pill
           aria-hidden
           className={
             'pointer-events-none flex -translate-x-1/2 -translate-y-1/2 items-baseline gap-1.5 rounded-full border border-brass-400/70 bg-linen-50/92 whitespace-nowrap text-ink-900 shadow-[0_6px_18px_-10px_var(--color-ink-900)] backdrop-blur-sm ' +

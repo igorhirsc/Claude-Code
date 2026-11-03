@@ -283,9 +283,8 @@ function Scene({
       {/* a touch of direct key light, from the rig's own key position, for form */}
       <directionalLight position={STUDIO_KEY_POSITION} intensity={0.55} color={palette.linen50} />
       <ArmchairModel swatchId={swatchId} reduced={reduced} onReady={onReady} />
-      {/* broad soft shadow from the body, tight contact under each sabot */}
-      <ContactShadows position={[0, 0.0005, 0]} scale={2.6} resolution={512} far={0.9} blur={2.6} opacity={0.5} color={palette.ink900} frames={1} />
-      <ContactShadows position={[0, 0.001, 0]} scale={1.6} resolution={512} far={0.08} blur={0.7} opacity={0.6} color={palette.ink900} frames={1} />
+      {/* one soft contact shadow; body and sabots both sit inside its 0.9 m reach */}
+      <ContactShadows position={[0, 0.0005, 0]} scale={3.2} resolution={256} far={0.65} blur={2.6} opacity={0.55} color={palette.ink900} frames={1} />
       {callouts && labels.map((l) => <DimensionCallout key={l.def.id} def={l.def} label={l.label} value={l.value} compact={compact} />)}
       <Rig reduced={reduced} distance={distance} apiRef={apiRef} />
       {import.meta.env.DEV && <DebugHook />}
