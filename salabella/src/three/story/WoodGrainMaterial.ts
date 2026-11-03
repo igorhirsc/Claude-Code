@@ -81,7 +81,8 @@ void main() {
   vec3 w = vec3(fbm3(q), fbm3(q + vec3(5.2, 1.3, 2.8)), 0.0);
   float warp = fbm3(q + 2.6 * w);
   float warpHi = snoise(q * 4.2 + 1.3 * w);
-  d += 0.027 * warp + 0.006 * warpHi;
+  // The fine octave is kept small: any more and ring edges start to jitter.
+  d += 0.027 * warp + 0.003 * warpHi;
 
   // Slow ring-frequency drift along the log: the tree grew faster some years.
   float drift = snoise(vec3(dir * 0.8, 4.7));
@@ -127,7 +128,9 @@ void main() {
   // Lacquer: low, broad-ish, tinted toward the wood so it never reads white.
   vec3 H = normalize(uKeyDir + V);
   float nh = max(dot(N, H), 0.0);
-  float spec = pow(nh, 64.0) * 0.22 + pow(nh, 10.0) * 0.04;
+  // Tight clearcoat lobe over a faint broad sheen; the clamp below keeps the
+  // sum under 0.96 so the highlight never blows out.
+  float spec = pow(nh, 96.0) * 0.27 + pow(nh, 10.0) * 0.035;
   spec *= mix(1.0, 0.7, late) * mix(1.0, 0.6, pores) * smoothstep(-0.1, 0.3, ndk);
   vec3 specCol = mix(base, uKeyColor, 0.45);
 

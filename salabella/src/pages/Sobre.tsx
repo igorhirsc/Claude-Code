@@ -37,6 +37,34 @@ const VALUES = [
   },
 ] as const
 
+const PROCESS = [
+  {
+    title: 'Desenho',
+    body: 'Cecília desenha a lápis, em escala real, e toda peça nova ganha um protótipo em pinus antes de ir para a madeira definitiva.',
+  },
+  {
+    title: 'Madeira',
+    body: 'Freijó e imbuia de manejo certificado ou de reaproveitamento, secos ao ar e escolhidos tábua a tábua pelo desenho do veio.',
+  },
+  {
+    title: 'Bancada',
+    body: 'Espiga, cavilha e rabo-de-andorinha na marcenaria; costura à mão na tapeçaria; seis demãos lixadas uma a uma na laca.',
+  },
+  {
+    title: 'Assinatura',
+    body: 'Acabamento em óleo e cera de carnaúba, conferência final no Bexiga e o nome de quem fez gravado por baixo da peça.',
+  },
+] as const
+
+const MATERIALS = [
+  { name: 'Freijó maciço', use: 'Tampos, pés torneados e quadros' },
+  { name: 'Imbuia', use: 'Estantes e montantes' },
+  { name: 'Linho e bouclé de lã', use: 'Estofados e almofadas soltas' },
+  { name: 'Couro ao vegetal', use: 'Assentos em tira larga' },
+  { name: 'Latão', use: 'Torneado, repuxado e escovado' },
+  { name: 'Cerâmica e capim dourado', use: 'De Cunha (SP) e do Jalapão (TO)' },
+] as const
+
 const MILESTONES = [
   {
     year: '2012',
@@ -69,6 +97,8 @@ const MILESTONES = [
     body: 'A rede passa de quarenta ateliês parceiros, e a oficina do Bexiga começa a receber visitas com hora marcada.',
   },
 ] as const
+
+const lowerFirst = (t: string) => t.charAt(0).toLowerCase() + t.slice(1)
 
 /* ------------------------------------------------------------------ page */
 
@@ -149,6 +179,7 @@ export default function Sobre() {
       {/* ------------------------------------------------------ header -- */}
       <section
         aria-labelledby="sobre-titulo"
+        data-header="light"
         className="grain relative overflow-hidden bg-linen-100 pt-36 pb-20 text-ink-900 md:pt-44 md:pb-28"
       >
         <div className="mx-auto grid max-w-[1440px] gap-14 px-6 md:grid-cols-12 md:items-end md:gap-10 md:px-10 lg:gap-16">
@@ -183,11 +214,13 @@ export default function Sobre() {
               que sai daqui.
             </p>
 
-            <dl className="mt-12 grid max-w-[44rem] grid-cols-3 gap-3 border-t border-ink-900/15 pt-8 sm:gap-8">
+            {/* @container: the figures scale with the row itself, so "São Paulo" fits its
+                third at every width (at exactly 768px the cell is only ~107px). */}
+            <dl className="@container mt-12 grid max-w-[44rem] grid-cols-3 gap-3 border-t border-ink-900/15 pt-8 sm:gap-8">
               {FACTS.map((f) => (
                 <div key={f.label} data-hero-fade>
                   <dt className="eyebrow text-[0.6875rem] text-ink-600">{f.label}</dt>
-                  <dd className="mt-3 font-display text-[1.3125rem] leading-none whitespace-nowrap text-ink-900 tabular-nums sm:text-3xl lg:text-4xl">
+                  <dd className="mt-3 font-display text-[clamp(1.3125rem,calc((100cqw-4rem)/14),2.25rem)] leading-none whitespace-nowrap text-ink-900 tabular-nums">
                     {f.value}
                   </dd>
                   <dd className="mt-2 text-xs leading-snug text-ink-600 sm:text-sm">{f.note}</dd>
@@ -208,7 +241,7 @@ export default function Sobre() {
       </section>
 
       {/* ----------------------------------------------------- founders -- */}
-      <section aria-labelledby="historia-titulo" className="grain relative overflow-hidden bg-ink-900 text-linen-100">
+      <section id="historia" data-header="dark" aria-labelledby="historia-titulo" className="grain relative overflow-hidden bg-ink-900 text-linen-100">
         <div className="mx-auto grid max-w-[1440px] gap-12 px-6 py-24 md:grid-cols-12 md:gap-10 md:px-10 md:py-32 lg:py-40">
           <div className="md:col-span-5 lg:col-span-4">
             <p data-reveal className="eyebrow flex items-center gap-3 text-brass-400">
@@ -260,7 +293,7 @@ export default function Sobre() {
       </section>
 
       {/* ------------------------------------------------------- values -- */}
-      <section aria-labelledby="valores-titulo" className="bg-linen-50 text-ink-900">
+      <section id="valores" data-header="light" aria-labelledby="valores-titulo" className="bg-linen-50 text-ink-900">
         <div className="mx-auto max-w-[1440px] px-6 py-24 md:px-10 md:py-32">
           <div className="grid gap-6 md:grid-cols-12 md:items-end md:gap-10">
             <div className="md:col-span-7">
@@ -292,8 +325,53 @@ export default function Sobre() {
         </div>
       </section>
 
+      {/* ---------------------------------------------- materials -- */}
+      <section
+        id="materiais"
+        data-header="dark"
+        aria-labelledby="materiais-titulo"
+        className="grain relative overflow-hidden bg-ink-900 text-linen-100"
+      >
+        <div className="mx-auto grid max-w-[1440px] gap-14 px-6 py-24 md:grid-cols-12 md:gap-10 md:px-10 md:py-32">
+          <div className="md:col-span-5 lg:col-span-4">
+            <p data-reveal className="eyebrow flex items-center gap-3 text-brass-400">
+              <span aria-hidden className="h-px w-8 bg-brass-400" />
+              Materiais e processo
+            </p>
+            <h2
+              id="materiais-titulo"
+              data-reveal
+              className="mt-6 font-display text-[2.25rem] leading-[1.06] font-light tracking-[-0.02em] text-balance text-linen-50 md:text-5xl"
+            >
+              Da tora à assinatura, <em className="text-brass-300 italic">no tempo da madeira.</em>
+            </h2>
+            <dl data-reveal className="mt-12 divide-y divide-linen-50/10 border-y border-linen-50/10">
+              {MATERIALS.map((m) => (
+                <div key={m.name} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5">
+                  <dt className="font-display text-lg text-linen-50">{m.name}</dt>
+                  <dd className="text-sm text-linen-300">{m.use}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          <ol className="grid gap-px self-start overflow-hidden border border-linen-50/10 bg-linen-50/10 sm:grid-cols-2 md:col-span-7 lg:col-span-7 lg:col-start-6">
+            {PROCESS.map((step, i) => (
+              <li key={step.title} data-reveal className="flex flex-col bg-ink-900 p-7 md:p-9">
+                <span aria-hidden className="font-display text-sm text-brass-300 tabular-nums">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 className="mt-8 font-display text-[1.75rem] leading-tight text-linen-50 md:mt-12">{step.title}</h3>
+                <span aria-hidden className="mt-4 block h-px w-10 bg-brass-400" />
+                <p className="mt-5 max-w-[40ch] text-[0.9375rem] leading-relaxed text-linen-300">{step.body}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
       {/* ---------------------------------------------------- timeline -- */}
-      <section aria-labelledby="linha-titulo" className="grain relative overflow-hidden bg-linen-100 text-ink-900">
+      <section id="linha-do-tempo" data-header="light" aria-labelledby="linha-titulo" className="grain relative overflow-hidden bg-linen-100 text-ink-900">
         <div className="mx-auto grid max-w-[1440px] gap-14 px-6 py-24 md:grid-cols-12 md:gap-10 md:px-10 md:py-32">
           <div className="md:col-span-4">
             <div className="md:sticky md:top-32">
@@ -335,24 +413,25 @@ export default function Sobre() {
       </section>
 
       {/* --------------------------------------------------------- CTA -- */}
-      <section aria-labelledby="visita-titulo" className="grain relative overflow-hidden bg-ink-900 text-linen-50">
+      <section id="visite" data-header="dark" aria-labelledby="visita-titulo" className="grain relative overflow-hidden bg-ink-900 text-linen-50">
         <div className="mx-auto flex max-w-[1440px] flex-col items-center px-6 py-28 text-center md:px-10 md:py-40">
-          <p data-reveal className="eyebrow text-brass-400">Visite o ateliê</p>
+          <p data-reveal className="eyebrow text-brass-400">Visite o showroom</p>
           <h2
             id="visita-titulo"
             data-reveal
             className="mt-6 max-w-[16ch] font-display text-[2.5rem] leading-[1.04] font-light tracking-[-0.02em] text-balance md:text-6xl xl:text-7xl"
           >
-            Venha ver o torno funcionando <em className="text-brass-300 italic">de perto.</em>
+            Venha ver a bancada trabalhando <em className="text-brass-300 italic">de perto.</em>
           </h2>
-          <p data-reveal className="mt-8 max-w-[52ch] text-base leading-relaxed text-linen-300 md:text-lg">
-            Recebemos visitas com hora marcada — {HOURS_LINES[0].charAt(0).toLowerCase() + HOURS_LINES[0].slice(1)}.
-            Traga as medidas da sua sala e tempo para um café.
+          <p data-reveal className="mt-8 max-w-[56ch] text-base leading-relaxed text-linen-300 md:text-lg">
+            O showroom dos Jardins abre {lowerFirst(HOURS_LINES[0])}; {lowerFirst(HOURS_LINES[1])}. No fundo da sala, a
+            bancada está sempre em uso. Quer conhecer a oficina do Bexiga? As visitas lá são agendadas pelo contato. Traga
+            as medidas da sua sala e tempo para um café.
           </p>
           <div data-reveal className="mt-12">
             <Link
               ref={ctaRef}
-              to="/contato"
+              to="/contato?assunto=showroom#formulario"
               className="group eyebrow inline-flex items-center gap-3 rounded-full bg-linen-50 py-4 pr-4 pl-7 text-ink-900 transition-colors duration-200 hover:bg-brass-200"
             >
               Agendar uma visita

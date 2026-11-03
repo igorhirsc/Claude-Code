@@ -14,20 +14,59 @@ const LINKS = [
 
 const MENU_ID = 'menu-mobile'
 
-export function Header() {
+type Tone = 'light' | 'dark'
+
+/** Vertical probe (px from the top of the viewport) — the middle of the header bar. */
+const PROBE_Y = 40
+
+/**
+ * Tone of the page section under the header bar, read from the nearest
+ * `[data-header="light|dark"]` element (every top-level section and the
+ * footer carries one). Light = cream background, dark = ink background.
+ */
+function toneUnderHeader(): Tone {
+  const marked = document.querySelectorAll<HTMLElement>('[data-header]')
+  let tone: Tone = 'light'
+  marked.forEach((el) => {
+    const r = el.getBoundingClientRect()
+    if (r.top <= PROBE_Y && r.bottom > PROBE_Y) tone = el.dataset.header === 'dark' ? 'dark' : 'light'
+  })
+  return tone
+}
+
+export function Header({ inert }: { inert?: boolean }) {
   const [solid, setSolid] = useState(false)
+  const [tone, setTone] = useState<Tone>('light')
   const [open, setOpen] = useState(false)
   const location = useLocation()
   const toggleRef = useRef<HTMLButtonElement>(null)
   const panelRef = useRef<HTMLDivElement>(null)
   const ctaRef = useMagnetic<HTMLAnchorElement>({ strength: 0.28, max: 10 })
 
+  // Scrolled state + the tone of whatever section sits under the bar. Checked
+  // on scroll/resize (rAF-throttled) and again after every route change, once
+  // the new page has mounted and the scroll position has been reset.
   useEffect(() => {
-    const onScroll = () => setSolid(window.scrollY > 40)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+    let raf = 0
+    const measure = () => {
+      raf = 0
+      setSolid(window.scrollY > 40)
+      setTone(toneUnderHeader())
+    }
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(measure)
+    }
+    measure()
+    const late = window.setTimeout(measure, 120)
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.clearTimeout(late)
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+    }
+  }, [location.pathname])
 
   // Any navigation closes the menu (adjust-state-during-render pattern).
   const routeKey = location.pathname + location.search + location.hash
@@ -79,21 +118,26 @@ export function Header() {
     }
   }, [open])
 
-  // Light text whenever the ink scrim / open menu sits behind it.
-  const onDark = !solid || open
+  // Light text over ink sections and the open menu; ink text over cream.
+  const onDark = open || tone === 'dark'
 
   return (
     <header
+      inert={inert}
+      data-tone={open ? 'menu' : tone}
+      data-solid={solid || undefined}
       className={clsx(
         'fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-500 ease-aaa',
-        // Unscrolled: a flat ink scrim keeps light text >= ~6.9:1 over any
-        // hero, light or dark. A fading gradient dropped to ~1.5:1 at the
-        // nav row over the light Home hero.
+        // Unscrolled: fully transparent, text tone follows the hero under it.
+        // Scrolled: a translucent bar in the same family as the section below
+        // (linen over cream, ink over ink), so it never turns grey.
         open
           ? 'bg-ink-900'
-          : solid
-            ? 'bg-linen-50/90 shadow-[0_1px_0_0_var(--color-linen-300)] backdrop-blur-md'
-            : 'bg-ink-900/70 backdrop-blur-sm',
+          : !solid
+            ? 'bg-transparent'
+            : tone === 'dark'
+              ? 'bg-ink-900/85 shadow-[0_1px_0_0_color-mix(in_oklab,var(--color-linen-50)_10%,transparent)] backdrop-blur-md'
+              : 'bg-linen-50/90 shadow-[0_1px_0_0_var(--color-linen-300)] backdrop-blur-md',
       )}
     >
       <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-6 py-5 md:px-10">

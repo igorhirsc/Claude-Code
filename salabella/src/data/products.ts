@@ -9,7 +9,7 @@ import { SPEC_SUMMARY } from '@/three/configurator/dimensions'
  */
 
 /** How light falls on the piece in its card photo. */
-export type Finish = 'fabric' | 'wood' | 'brass' | 'ceramic' | 'glass'
+export type Finish = 'fabric' | 'leather' | 'wood' | 'lacquer' | 'brass' | 'ceramic' | 'glass'
 
 /** Silhouette drawn in the card photo. */
 export type Shape =
@@ -26,7 +26,7 @@ export type Shape =
   | 'vase'
   | 'basket'
 
-export type Badge = 'Novo' | 'Sob medida' | 'Edição limitada' | 'Em 3D'
+export type Badge = 'Novo' | 'Sob medida' | 'Edição limitada'
 
 export type Product = {
   id: string
@@ -45,7 +45,7 @@ export type Product = {
     /** Backdrop: wall (top) → floor (bottom), the card's two-stop gradient. */
     wall: PaletteKey
     floor: PaletteKey
-    /** The piece itself, and its secondary material (legs, base, fittings). */
+    /** The piece itself, and its secondary material (legs, base, frame, fittings). */
     body: PaletteKey
     accent: PaletteKey
   }
@@ -98,7 +98,7 @@ export const PRODUCTS: readonly Product[] = [
     finish: 'fabric',
     shape: 'armchair',
     tones: { wall: 'linen100', floor: 'linen300', body: 'clay500', accent: 'clay600' },
-    badge: 'Em 3D',
+    // No badge: the card's "Configure em 3D" pill already says it, once.
     featured: true,
   },
   {
@@ -111,7 +111,7 @@ export const PRODUCTS: readonly Product[] = [
     materials: ['Couro curtido ao vegetal', 'Quadro em freijó maciço', 'Encaixes em cavilha'],
     dimensions: '72 × 86 × 70 cm',
     leadTime: 'Sob encomenda · 50 dias',
-    finish: 'wood',
+    finish: 'leather',
     shape: 'lounge',
     tones: { wall: 'ink700', floor: 'ink800', body: 'brass400', accent: 'clay600' },
   },
@@ -169,7 +169,7 @@ export const PRODUCTS: readonly Product[] = [
     materials: ['MDF naval em laca acetinada', 'Puxadores em latão torneado', 'Pés em freijó'],
     dimensions: '200 × 45 × 78 cm',
     leadTime: 'Sob encomenda · 55 dias',
-    finish: 'ceramic',
+    finish: 'lacquer',
     shape: 'sideboard',
     tones: { wall: 'linen100', floor: 'linen300', body: 'clay500', accent: 'brass400' },
     badge: 'Novo',

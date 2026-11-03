@@ -153,6 +153,7 @@ export default function BrandStory() {
       id="atelier"
       ref={sectionRef}
       aria-labelledby="atelier-titulo"
+      data-header="dark"
       className="grain relative overflow-hidden bg-ink-900 text-linen-100"
     >
       <div className="mx-auto max-w-[1440px] px-6 py-24 md:px-10 md:py-32 lg:py-40">

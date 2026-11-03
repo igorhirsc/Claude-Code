@@ -96,6 +96,7 @@ export default function Contact() {
       ref={rootRef}
       id="contato"
       aria-labelledby="contato-titulo"
+      data-header="light"
       className="grain relative overflow-hidden bg-linen-100 py-28 text-ink-900 md:py-36"
     >
       <div className="mx-auto max-w-[1440px] px-6 md:px-10">

@@ -136,7 +136,7 @@ export default function Colecoes() {
 
   return (
     <>
-      <section ref={headRef} aria-labelledby="colecoes-pagina-titulo" className="bg-linen-100 text-ink-900">
+      <section ref={headRef} data-header="light" aria-labelledby="colecoes-pagina-titulo" className="bg-linen-100 text-ink-900">
         <div className="mx-auto max-w-[1440px] px-6 pt-36 pb-12 md:px-10 md:pt-44 md:pb-16">
           <div className="grid gap-8 md:grid-cols-12 md:items-end md:gap-10">
             <div className="md:col-span-8 lg:col-span-7">
@@ -168,7 +168,7 @@ export default function Colecoes() {
         </div>
       </section>
 
-      <section aria-label="Peças do catálogo" className="bg-linen-100 text-ink-900">
+      <section data-header="light" aria-label="Peças do catálogo" className="bg-linen-100 text-ink-900">
         <div className="mx-auto max-w-[1440px] px-6 pb-24 md:px-10 md:pb-32">
           <div className="rule-brass" />
 

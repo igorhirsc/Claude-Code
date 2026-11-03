@@ -16,7 +16,11 @@ export const CATEGORIES: readonly Category[] = [
   { id: 'sofas', label: 'Sofás', description: 'Linhas baixas, assento profundo e estrutura em madeira maciça.' },
   { id: 'poltronas', label: 'Poltronas', description: 'Volumes macios em bouclé e linho, feitos para ler devagar.' },
   { id: 'mesas', label: 'Mesas', description: 'Tampos em freijó e encaixes de marcenaria deixados à vista.' },
-  { id: 'estantes', label: 'Estantes', description: 'Marcenaria sob medida para livros, cerâmicas e memórias.' },
+  {
+    id: 'estantes',
+    label: 'Estantes e aparadores',
+    description: 'Marcenaria sob medida e laca feita à mão, para livros, louças e memórias.',
+  },
   { id: 'iluminacao', label: 'Iluminação', description: 'Latão escovado e cúpulas laqueadas para uma luz baixa e quente.' },
   { id: 'decoracao', label: 'Decoração', description: 'Cerâmica de torno e capim dourado do Jalapão, peça a peça.' },
 ] as const

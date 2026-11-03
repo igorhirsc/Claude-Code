@@ -13,6 +13,7 @@ import {
   WHATSAPP_URL,
 } from '@/data/storeLocator'
 import { useMagnetic } from '@/hooks/useMagnetic'
+import { focusWithClearance } from '@/hooks/useLenis'
 import { StoreMap } from '@/components/ui/StoreMap'
 import {
   ArrowUpRightIcon,
@@ -38,9 +39,19 @@ const SUBJECTS = [
   'Outro assunto',
 ]
 
+/** `?assunto=` shortcuts used by links elsewhere (e.g. the footer's "Projetos especiais"). */
+const SUBJECT_PRESETS: Record<string, string> = {
+  showroom: SUBJECTS[0],
+  orcamento: SUBJECTS[1],
+  projeto: SUBJECTS[2],
+  arquitetos: SUBJECTS[3],
+}
+
+const presetSubject = () => SUBJECT_PRESETS[new URLSearchParams(window.location.search).get('assunto') ?? ''] ?? ''
+
 const CHANNELS = [
   { icon: <WhatsAppIcon size={18} />, label: 'WhatsApp', note: 'A resposta mais rápida', href: WHATSAPP_URL, external: true },
-  { icon: <PhoneIcon size={18} />, label: PHONE_DISPLAY, note: 'Terça a sábado, 10h às 19h', href: PHONE_HREF, external: false },
+  { icon: <PhoneIcon size={18} />, label: PHONE_DISPLAY, note: HOURS_LINES[0], href: PHONE_HREF, external: false },
   { icon: <MailIcon size={18} />, label: EMAIL, note: 'Respondemos em até um dia útil', href: EMAIL_HREF, external: false },
 ]
 
@@ -143,7 +154,7 @@ const labelFloats =
   'peer-[:not(:placeholder-shown)]:top-1 peer-[:not(:placeholder-shown)]:text-[0.6875rem] peer-[:not(:placeholder-shown)]:leading-4 peer-[:not(:placeholder-shown)]:font-medium peer-[:not(:placeholder-shown)]:tracking-[0.2em] peer-[:not(:placeholder-shown)]:uppercase'
 
 const controlBase =
-  'peer block w-full appearance-none rounded-none border-0 border-b bg-transparent px-0 pt-7 pb-3 text-[0.9375rem] leading-6 text-ink-900 transition-colors duration-200 focus:outline-none focus-visible:outline-none disabled:opacity-60'
+  'peer block w-full scroll-mt-32 appearance-none rounded-none border-0 border-b bg-transparent px-0 pt-7 pb-3 text-[0.9375rem] leading-6 text-ink-900 transition-colors duration-200 focus:outline-none focus-visible:outline-none disabled:opacity-60'
 
 function FieldShell({
   id,
@@ -201,7 +212,7 @@ export default function Contato() {
   const mountedRef = useRef(false)
   const timerRef = useRef<number | undefined>(undefined)
 
-  const [values, setValues] = useState<Values>(EMPTY)
+  const [values, setValues] = useState<Values>(() => ({ ...EMPTY, assunto: presetSubject() }))
   const [errors, setErrors] = useState<Errors>({})
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({})
   const [status, setStatus] = useState<Status>('idle')
@@ -233,7 +244,7 @@ export default function Contato() {
   }, [])
 
   useEffect(() => {
-    if (status === 'success') successRef.current?.focus()
+    if (status === 'success') focusWithClearance(successRef.current)
   }, [status])
 
   const update = (name: FieldName, value: string) => {
@@ -265,7 +276,7 @@ export default function Contato() {
           ? 'Falta só um detalhe — veja o campo destacado.'
           : `Faltam ${invalid.length} detalhes — veja os campos destacados.`,
       )
-      document.getElementById(`contato-${invalid[0]}`)?.focus()
+      focusWithClearance(document.getElementById(`contato-${invalid[0]}`))
       return
     }
     setSummary('Enviando sua mensagem…')
@@ -285,7 +296,7 @@ export default function Contato() {
     setTouched({})
     setStatus('idle')
     setSummary('')
-    requestAnimationFrame(() => document.getElementById('contato-nome')?.focus())
+    requestAnimationFrame(() => focusWithClearance(document.getElementById('contato-nome')))
   }
 
   const describedBy = (name: FieldName, hint?: boolean) =>
@@ -301,6 +312,7 @@ export default function Contato() {
       {/* ---------------------------------------------------------- hero */}
       <section
         ref={heroRef}
+        data-header="dark"
         aria-labelledby="contato-hero-titulo"
         className="grain relative overflow-hidden bg-ink-900 pt-40 pb-20 text-linen-50 md:pt-48 md:pb-28"
       >
@@ -360,10 +372,10 @@ export default function Contato() {
       </section>
 
       {/* ------------------------------------------------- form + sidebar */}
-      <section aria-label="Formulário e informações da loja" className="bg-linen-50 py-24 text-ink-900 md:py-32">
+      <section data-header="light" aria-label="Formulário e informações da loja" className="bg-linen-50 py-24 text-ink-900 md:py-32">
         <div className="mx-auto max-w-[1440px] px-6 md:px-10">
           <div className="grid grid-cols-1 gap-20 lg:grid-cols-12 lg:gap-12 xl:gap-20">
-            <div ref={formWrapRef} className="lg:col-span-7">
+            <div ref={formWrapRef} id="formulario" className="scroll-mt-28 lg:col-span-7">
               {status === 'success' ? (
                 <div className="flex min-h-[34rem] flex-col items-start justify-center">
                   <span className="inline-flex size-16 items-center justify-center rounded-full bg-moss-600 text-linen-50">
@@ -372,7 +384,7 @@ export default function Contato() {
                   <h2
                     ref={successRef}
                     tabIndex={-1}
-                    className="mt-8 font-display text-4xl leading-tight font-light tracking-[-0.02em] text-balance focus:outline-none md:text-5xl"
+                    className="mt-8 scroll-mt-32 font-display text-4xl leading-tight font-light tracking-[-0.02em] text-balance focus:outline-none md:text-5xl"
                   >
                     Mensagem recebida{sentName ? `, ${sentName}` : ''}.
                   </h2>
@@ -572,7 +584,7 @@ export default function Contato() {
             </div>
 
             {/* ------------------------------------------------- sidebar */}
-            <aside ref={asideRef} aria-labelledby="contato-showroom" className="lg:col-span-5">
+            <aside ref={asideRef} id="showroom" aria-labelledby="contato-showroom" className="scroll-mt-28 lg:col-span-5">
               <div className="lg:sticky lg:top-28">
                 <div data-reveal>
                   <StoreMap compact />

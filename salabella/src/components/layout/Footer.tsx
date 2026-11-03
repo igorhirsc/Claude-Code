@@ -1,38 +1,33 @@
 import { useState, type FormEvent } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import clsx from 'clsx'
+import { CATEGORIES } from '@/data/categories'
 import { WHATSAPP_URL, INSTAGRAM_URL, PINTEREST_URL } from '@/data/storeLocator'
 import { useMagnetic } from '@/hooks/useMagnetic'
+import { focusWithClearance } from '@/hooks/useLenis'
 import { ArrowUpRightIcon, CheckIcon } from '@/components/ui/icons'
 
 const SITEMAP = [
   {
     heading: 'Coleções',
-    links: [
-      { label: 'Sofás', to: '/colecoes?categoria=sofas' },
-      { label: 'Poltronas', to: '/colecoes?categoria=poltronas' },
-      { label: 'Mesas', to: '/colecoes?categoria=mesas' },
-      { label: 'Estantes', to: '/colecoes?categoria=estantes' },
-      { label: 'Iluminação', to: '/colecoes?categoria=iluminacao' },
-      { label: 'Decoração', to: '/colecoes?categoria=decoracao' },
-    ],
+    // Same labels as the /colecoes filters, each landing on its filtered view.
+    links: CATEGORIES.map((c) => ({ label: c.label, to: `/colecoes?categoria=${c.id}` })),
   },
   {
     heading: 'Ateliê',
     links: [
-      { label: 'Nossa história', to: '/sobre' },
-      { label: 'Processo', to: '/sobre' },
-      { label: 'Materiais', to: '/sobre' },
-      { label: 'Sustentabilidade', to: '/sobre' },
+      { label: 'Nossa história', to: '/sobre#historia' },
+      { label: 'Princípios', to: '/sobre#valores' },
+      { label: 'Materiais e processo', to: '/sobre#materiais' },
+      { label: 'Linha do tempo', to: '/sobre#linha-do-tempo' },
     ],
   },
   {
     heading: 'Cliente',
     links: [
       { label: 'Contato', to: '/contato' },
-      { label: 'Lojas físicas', to: '/contato' },
-      { label: 'Projetos especiais', to: '/contato' },
-      { label: 'Cuidados com a peça', to: '/sobre' },
+      { label: 'Showroom', to: '/contato#showroom' },
+      { label: 'Projetos especiais', to: '/contato?assunto=projeto#formulario' },
     ],
   },
 ]
@@ -51,7 +46,7 @@ const underline =
 
 type Status = { kind: 'idle' } | { kind: 'error'; message: string } | { kind: 'success' }
 
-export function Footer() {
+export function Footer({ inert }: { inert?: boolean }) {
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const submitRef = useMagnetic<HTMLButtonElement>({ strength: 0.35, max: 8 })
@@ -68,13 +63,13 @@ export function Footer() {
       setEmail('')
       return
     }
-    document.getElementById('footer-email')?.focus()
+    focusWithClearance(document.getElementById('footer-email'))
   }
 
   const invalid = status.kind === 'error'
 
   return (
-    <footer className="grain relative overflow-hidden bg-ink-900 pt-24 pb-10 text-linen-100">
+    <footer data-header="dark" inert={inert} className="grain relative overflow-hidden bg-ink-900 pt-24 pb-10 text-linen-100">
       <div className="mx-auto max-w-[1440px] px-6 md:px-10">
         <div className="rule-brass mb-16" />
 
@@ -110,7 +105,7 @@ export function Footer() {
                   aria-invalid={invalid || undefined}
                   aria-describedby="footer-email-status"
                   placeholder="seu melhor e-mail"
-                  className="w-full bg-transparent py-1 text-sm text-linen-50 placeholder:text-linen-100/55 focus:outline-none"
+                  className="w-full scroll-mt-32 bg-transparent py-1 text-sm text-linen-50 placeholder:text-linen-100/55 focus:outline-none"
                 />
                 <button
                   ref={submitRef}
@@ -146,9 +141,15 @@ export function Footer() {
               <ul className="mt-5 space-y-3">
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <NavLink to={l.to} className={clsx(underline, 'text-sm text-linen-100/70 hover:text-linen-50')}>
+                    {/* resetScroll: a query-only change (e.g. /colecoes?categoria=…
+                        while already on /colecoes) still starts at the top. */}
+                    <Link
+                      to={l.to}
+                      state={{ resetScroll: true }}
+                      className={clsx(underline, 'text-sm text-linen-100/70 hover:text-linen-50')}
+                    >
                       {l.label}
-                    </NavLink>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -157,7 +158,7 @@ export function Footer() {
         </div>
 
         <div className="mt-20 flex flex-col items-start justify-between gap-6 border-t border-linen-100/15 pt-8 text-xs text-linen-100/60 md:flex-row md:items-center">
-          <p>© {new Date().getFullYear()} SALABELLA Móveis — CNPJ 00.000.000/0001-00</p>
+          <p>© {new Date().getFullYear()} SALABELLA Móveis</p>
           <div className="flex gap-6">
             {SOCIAL.map((s) => (
               <a

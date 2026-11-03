@@ -100,7 +100,7 @@ export function ProductCard({ product, saved, onToggleSave, onOpen }: ProductCar
         <div className="mt-auto flex items-center justify-between gap-4 pt-5 text-sm text-ink-600">
           <span className="tabular-nums">{product.dimensions}</span>
           <span className="eyebrow inline-flex items-center gap-1.5 text-[0.6875rem] text-ink-900">
-            {product.featured ? 'Abrir em 3D' : 'Ver detalhes'}
+            {product.featured ? 'Personalizar' : 'Ver detalhes'}
             <span className="transition-transform duration-200 ease-aaa group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
               <ArrowUpRightIcon size={14} />
             </span>
