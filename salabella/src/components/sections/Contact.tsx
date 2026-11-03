@@ -175,7 +175,7 @@ export default function Contact() {
             </div>
 
             <div data-reveal className="mt-12 flex items-center gap-5 border-t border-ink-900/10 pt-8">
-              <p className="eyebrow text-[0.6875rem] text-ink-900/65">Acompanhe o atelier</p>
+              <p className="eyebrow text-[0.6875rem] text-ink-900/65">Acompanhe o ateliê</p>
               <div className="flex gap-2">
                 <a
                   href={INSTAGRAM_URL}

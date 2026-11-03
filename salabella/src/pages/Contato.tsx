@@ -46,7 +46,7 @@ const CHANNELS = [
 
 const OTHER_SERVICES = [
   { title: 'Arquitetos e designers', body: 'Condições de especificação, amostras de tecido e acabamento.', subject: 'Arquitetos e designers' },
-  { title: 'Imprensa', body: 'Imagens em alta, release e entrevistas com o atelier.', subject: 'Imprensa' },
+  { title: 'Imprensa', body: 'Imagens em alta, release e entrevistas com o ateliê.', subject: 'Imprensa' },
   { title: 'Artesãos parceiros', body: 'Marcenaria, tapeçaria ou cerâmica? Queremos conhecer seu trabalho.', subject: 'Artesãos parceiros' },
 ]
 
@@ -328,7 +328,7 @@ export default function Contato() {
               </h1>
               <p data-hero-fade className="mt-8 max-w-[54ch] text-base leading-relaxed text-linen-100/75 md:text-lg">
                 Uma dúvida sobre medidas, um tecido que você quer ver ao vivo, um projeto que ainda é só um esboço —
-                escreva para a gente. Quem responde é o próprio atelier, em até um dia útil.
+                escreva para a gente. Quem responde é o próprio ateliê, em até um dia útil.
               </p>
             </div>
 
@@ -377,7 +377,7 @@ export default function Contato() {
                     Mensagem recebida{sentName ? `, ${sentName}` : ''}.
                   </h2>
                   <p className="mt-5 max-w-[50ch] text-base leading-relaxed text-ink-900/75">
-                    Obrigado por escrever. Alguém do atelier responde em até um dia útil, pelo e-mail que você deixou
+                    Obrigado por escrever. Alguém do ateliê responde em até um dia útil, pelo e-mail que você deixou
                     {values.telefone.trim() ? ' ou pelo WhatsApp' : ''}. Se for urgente, o WhatsApp é o caminho mais
                     rápido.
                   </p>
@@ -403,7 +403,7 @@ export default function Contato() {
               ) : (
                 <>
                   <p data-reveal className="eyebrow text-clay-600">
-                    Escreva para o atelier
+                    Escreva para o ateliê
                   </p>
                   <h2
                     data-reveal

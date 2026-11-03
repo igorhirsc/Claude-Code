@@ -18,7 +18,7 @@ const SITEMAP = [
     ],
   },
   {
-    heading: 'Atelier',
+    heading: 'Ateliê',
     links: [
       { label: 'Nossa história', to: '/sobre' },
       { label: 'Processo', to: '/sobre' },
@@ -87,7 +87,7 @@ export function Footer() {
             </p>
 
             <form className="mt-8 max-w-sm" noValidate onSubmit={onSubmit}>
-              <p className="eyebrow mb-3 text-brass-300">Cartas do atelier</p>
+              <p className="eyebrow mb-3 text-brass-300">Cartas do ateliê</p>
               <div
                 className={clsx(
                   'flex items-center gap-2 border-b pb-2 transition-colors duration-300 focus-within:border-brass-300',

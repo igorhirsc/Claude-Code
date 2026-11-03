@@ -8,7 +8,7 @@ import { ArrowUpRightIcon, CloseIcon, MenuIcon, WhatsAppIcon } from '@/component
 
 const LINKS = [
   { label: 'Coleções', to: '/colecoes' },
-  { label: 'Atelier', to: '/sobre' },
+  { label: 'Ateliê', to: '/sobre' },
   { label: 'Contato', to: '/contato' },
 ]
 
@@ -242,7 +242,7 @@ export function Header() {
               >
                 <span className="inline-flex items-center gap-2.5">
                   <WhatsAppIcon size={16} />
-                  Fale com o atelier
+                  Fale com o ateliê
                 </span>
                 <ArrowUpRightIcon size={16} />
               </a>
