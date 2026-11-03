@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 import { scrollTo } from '@/hooks/useLenis'
-import { WHATSAPP_URL } from '@/data/storeLocator'
+import { useMagnetic } from '@/hooks/useMagnetic'
+import { WHATSAPP_URL, ADDRESS_LINES, HOURS_LINES } from '@/data/storeLocator'
+import { ArrowUpRightIcon, CloseIcon, MenuIcon, WhatsAppIcon } from '@/components/ui/icons'
 
 const LINKS = [
   { label: 'Coleções', to: '/colecoes' },
@@ -10,8 +12,15 @@ const LINKS = [
   { label: 'Contato', to: '/contato' },
 ]
 
+const MENU_ID = 'menu-mobile'
+
 export function Header() {
   const [solid, setSolid] = useState(false)
+  const [open, setOpen] = useState(false)
+  const location = useLocation()
+  const toggleRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const ctaRef = useMagnetic<HTMLAnchorElement>({ strength: 0.28, max: 10 })
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 40)
@@ -20,25 +29,84 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Any navigation closes the menu (adjust-state-during-render pattern).
+  const routeKey = location.pathname + location.search + location.hash
+  const [lastRoute, setLastRoute] = useState(routeKey)
+  if (lastRoute !== routeKey) {
+    setLastRoute(routeKey)
+    setOpen(false)
+  }
+
+  // Opening past the md: breakpoint (e.g. rotating a tablet) makes no sense.
+  useEffect(() => {
+    if (!open) return
+    const mq = window.matchMedia('(min-width: 768px)')
+    const onChange = () => mq.matches && setOpen(false)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [open])
+
+  // Scroll lock + Escape while open. Lenis drives scroll from window wheel /
+  // touch listeners, so overflow:hidden alone is not enough — swallow those
+  // events in the capture phase before Lenis sees them.
+  useEffect(() => {
+    if (!open) return
+    const html = document.documentElement
+    const body = document.body
+    const prev = { html: html.style.overflow, body: body.style.overflow }
+    html.style.overflow = 'hidden'
+    body.style.overflow = 'hidden'
+
+    const block = (e: Event) => {
+      e.stopPropagation()
+      if (!panelRef.current?.contains(e.target as Node)) e.preventDefault()
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+        toggleRef.current?.focus()
+      }
+    }
+    window.addEventListener('wheel', block, { capture: true, passive: false })
+    window.addEventListener('touchmove', block, { capture: true, passive: false })
+    window.addEventListener('keydown', onKey)
+    return () => {
+      html.style.overflow = prev.html
+      body.style.overflow = prev.body
+      window.removeEventListener('wheel', block, { capture: true })
+      window.removeEventListener('touchmove', block, { capture: true })
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  // Light text whenever the ink scrim / open menu sits behind it.
+  const onDark = !solid || open
+
   return (
     <header
       className={clsx(
-        'fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-500',
+        'fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-500 ease-aaa',
         // Unscrolled: a flat ink scrim keeps light text >= ~6.9:1 over any
         // hero, light or dark. A fading gradient dropped to ~1.5:1 at the
         // nav row over the light Home hero.
-        solid
-          ? 'bg-linen-50/90 shadow-[0_1px_0_0_var(--color-linen-300)] backdrop-blur-md'
-          : 'bg-ink-900/70 backdrop-blur-sm',
+        open
+          ? 'bg-ink-900'
+          : solid
+            ? 'bg-linen-50/90 shadow-[0_1px_0_0_var(--color-linen-300)] backdrop-blur-md'
+            : 'bg-ink-900/70 backdrop-blur-sm',
       )}
     >
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-6 py-5 md:px-10">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-6 py-5 md:px-10">
         <NavLink
           to="/"
-          className={clsx('font-display text-xl tracking-[0.14em]', solid ? 'text-ink-900' : 'text-linen-50')}
+          className={clsx(
+            'font-display text-xl tracking-[0.14em] transition-colors duration-300',
+            onDark ? 'text-linen-50' : 'text-ink-900',
+          )}
           onClick={(e) => {
             if (window.location.pathname === '/') {
               e.preventDefault()
+              setOpen(false)
               scrollTo(0)
             }
           }}
@@ -46,35 +114,145 @@ export function Header() {
           SALABELLA
         </NavLink>
 
-        <nav className="hidden items-center gap-10 md:flex">
+        <nav aria-label="Principal" className="hidden items-center gap-10 md:flex">
           {LINKS.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               className={({ isActive }) =>
                 clsx(
-                  'eyebrow py-1 transition-opacity',
-                  isActive ? 'opacity-100' : 'opacity-75 hover:opacity-100',
-                  solid ? 'text-ink-900' : 'text-linen-50',
+                  'group eyebrow relative py-1.5 transition-colors duration-200',
+                  onDark
+                    ? isActive
+                      ? 'text-linen-50'
+                      : 'text-linen-50/85 hover:text-linen-50'
+                    : isActive
+                      ? 'text-ink-900'
+                      : 'text-ink-900/75 hover:text-ink-900',
                 )
               }
             >
-              {l.label}
+              {({ isActive }) => (
+                <>
+                  {l.label}
+                  <span
+                    aria-hidden="true"
+                    className={clsx(
+                      'absolute inset-x-0 bottom-0 h-px transition-transform duration-500 ease-aaa',
+                      onDark ? 'bg-brass-400' : 'bg-brass-500',
+                      isActive
+                        ? 'scale-x-100'
+                        : 'origin-right scale-x-0 group-hover:origin-left group-hover:scale-x-100 group-focus-visible:origin-left group-focus-visible:scale-x-100',
+                    )}
+                  />
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
 
-        <a
-          href={WHATSAPP_URL}
-          target="_blank"
-          rel="noreferrer"
-          className={clsx(
-            'eyebrow rounded-full border px-5 py-2.5 transition-colors',
-            solid ? 'border-brass-400 text-ink-900' : 'border-linen-50/70 text-linen-50',
-          )}
-        >
-          Fale conosco
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            ref={ctaRef}
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noreferrer"
+            className={clsx(
+              'eyebrow hidden items-center gap-2 rounded-full border px-5 py-2.5 transition-colors duration-200 sm:inline-flex',
+              onDark
+                ? 'border-linen-50/70 text-linen-50 hover:border-brass-300 hover:bg-brass-300 hover:text-ink-900'
+                : 'border-brass-400 text-ink-900 hover:border-ink-900 hover:bg-ink-900 hover:text-linen-50',
+            )}
+          >
+            <WhatsAppIcon size={15} />
+            Fale conosco
+          </a>
+
+          <button
+            ref={toggleRef}
+            type="button"
+            aria-expanded={open}
+            aria-controls={MENU_ID}
+            aria-label={open ? 'Fechar menu' : 'Abrir menu'}
+            onClick={() => setOpen((v) => !v)}
+            className={clsx(
+              '-mr-2 inline-flex size-11 items-center justify-center rounded-full transition-colors duration-200 md:hidden',
+              onDark ? 'text-linen-50 hover:bg-linen-50/10' : 'text-ink-900 hover:bg-ink-900/5',
+            )}
+          >
+            {open ? <CloseIcon size={22} /> : <MenuIcon size={22} />}
+          </button>
+        </div>
+      </div>
+
+      <div
+        id={MENU_ID}
+        ref={panelRef}
+        inert={!open}
+        className={clsx(
+          'grid transition-[grid-template-rows] duration-500 ease-aaa md:hidden',
+          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <nav
+            aria-label="Menu"
+            className="mx-auto flex h-[calc(100svh-84px)] max-w-[1440px] flex-col px-6 pt-6 pb-10 text-linen-50"
+          >
+            <div className="rule-brass mb-6 opacity-60" />
+            <ul className="space-y-1">
+              {LINKS.map((l, i) => (
+                <li
+                  key={l.to}
+                  style={{ transitionDelay: open ? `${120 + i * 70}ms` : '0ms' }}
+                  className={clsx(
+                    'transition-[opacity,translate] duration-500 ease-aaa',
+                    open ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
+                  )}
+                >
+                  <NavLink
+                    to={l.to}
+                    onClick={() => setOpen(false)}
+                    className={({ isActive }) =>
+                      clsx(
+                        'flex items-baseline gap-4 py-3 font-display text-4xl leading-none transition-colors duration-200',
+                        isActive ? 'text-brass-300' : 'text-linen-50 hover:text-brass-200',
+                      )
+                    }
+                  >
+                    <span className="w-6 font-sans text-xs tracking-[0.2em] text-linen-50/60">0{i + 1}</span>
+                    {l.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+
+            <div
+              style={{ transitionDelay: open ? '360ms' : '0ms' }}
+              className={clsx(
+                'mt-auto space-y-6 transition-opacity duration-500 ease-aaa',
+                open ? 'opacity-100' : 'opacity-0',
+              )}
+            >
+              <a
+                href={WHATSAPP_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="eyebrow inline-flex w-full items-center justify-between rounded-full bg-brass-300 px-6 py-4 text-ink-900 transition-colors duration-200 hover:bg-brass-200"
+              >
+                <span className="inline-flex items-center gap-2.5">
+                  <WhatsAppIcon size={16} />
+                  Fale com o atelier
+                </span>
+                <ArrowUpRightIcon size={16} />
+              </a>
+              <div className="text-sm leading-relaxed text-linen-50/70">
+                <p>{ADDRESS_LINES[0]}</p>
+                <p>{HOURS_LINES[0]}</p>
+              </div>
+            </div>
+          </nav>
+        </div>
       </div>
     </header>
   )

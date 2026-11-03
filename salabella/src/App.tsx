@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Loader } from '@/components/ui/Loader'
+import { Cursor } from '@/components/ui/Cursor'
 import { useLenis } from '@/hooks/useLenis'
 import Home from '@/pages/Home'
 import Colecoes from '@/pages/Colecoes'
@@ -27,6 +28,7 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
+      <Cursor />
     </>
   )
 }

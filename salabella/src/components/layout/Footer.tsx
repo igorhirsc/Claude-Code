@@ -1,5 +1,9 @@
+import { useState, type FormEvent } from 'react'
 import { NavLink } from 'react-router-dom'
+import clsx from 'clsx'
 import { WHATSAPP_URL, INSTAGRAM_URL, PINTEREST_URL } from '@/data/storeLocator'
+import { useMagnetic } from '@/hooks/useMagnetic'
+import { ArrowUpRightIcon, CheckIcon } from '@/components/ui/icons'
 
 const SITEMAP = [
   {
@@ -33,7 +37,42 @@ const SITEMAP = [
   },
 ]
 
+const SOCIAL = [
+  { label: 'WhatsApp', href: WHATSAPP_URL },
+  { label: 'Instagram', href: INSTAGRAM_URL },
+  { label: 'Pinterest', href: PINTEREST_URL },
+]
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
+/** Underline that draws in from the left on hover/focus (background-size, so it wraps with the text). */
+const underline =
+  'bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-[position:0_100%] bg-no-repeat pb-0.5 transition-[background-size,color] duration-300 ease-aaa hover:bg-[length:100%_1px] focus-visible:bg-[length:100%_1px]'
+
+type Status = { kind: 'idle' } | { kind: 'error'; message: string } | { kind: 'success' }
+
 export function Footer() {
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  const submitRef = useMagnetic<HTMLButtonElement>({ strength: 0.35, max: 8 })
+
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const value = email.trim()
+    if (!value) {
+      setStatus({ kind: 'error', message: 'Digite seu e-mail para receber as novidades.' })
+    } else if (!EMAIL_RE.test(value)) {
+      setStatus({ kind: 'error', message: 'Esse e-mail parece incompleto — confira e tente de novo.' })
+    } else {
+      setStatus({ kind: 'success' })
+      setEmail('')
+      return
+    }
+    document.getElementById('footer-email')?.focus()
+  }
+
+  const invalid = status.kind === 'error'
+
   return (
     <footer className="grain relative overflow-hidden bg-ink-900 pt-24 pb-10 text-linen-100">
       <div className="mx-auto max-w-[1440px] px-6 md:px-10">
@@ -42,24 +81,62 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-14 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <p className="font-display text-3xl tracking-[0.1em]">SALABELLA</p>
-            <p className="mt-5 max-w-[30ch] text-sm leading-relaxed text-linen-100/60">
+            <p className="mt-5 max-w-[30ch] text-sm leading-relaxed text-linen-100/65">
               Móveis autorais, desenhados em São Paulo e feitos à mão por artesãos parceiros. Peças para viver com
               beleza, todos os dias.
             </p>
-            <form className="mt-8 flex max-w-sm items-center gap-2 border-b border-linen-100/25 pb-2" onSubmit={(e) => e.preventDefault()}>
-              <label htmlFor="footer-email" className="sr-only">
-                Seu e-mail
-              </label>
-              <input
-                id="footer-email"
-                type="email"
-                required
-                placeholder="seu melhor e-mail"
-                className="w-full bg-transparent text-sm placeholder:text-linen-100/50 focus:outline-none"
-              />
-              <button type="submit" className="eyebrow shrink-0 text-brass-300 hover:text-brass-200">
-                Assinar →
-              </button>
+
+            <form className="mt-8 max-w-sm" noValidate onSubmit={onSubmit}>
+              <p className="eyebrow mb-3 text-brass-300">Cartas do atelier</p>
+              <div
+                className={clsx(
+                  'flex items-center gap-2 border-b pb-2 transition-colors duration-300 focus-within:border-brass-300',
+                  invalid ? 'border-clay-400' : 'border-linen-100/25',
+                )}
+              >
+                <label htmlFor="footer-email" className="sr-only">
+                  Seu e-mail
+                </label>
+                <input
+                  id="footer-email"
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    if (status.kind !== 'idle') setStatus({ kind: 'idle' })
+                  }}
+                  aria-invalid={invalid || undefined}
+                  aria-describedby="footer-email-status"
+                  placeholder="seu melhor e-mail"
+                  className="w-full bg-transparent py-1 text-sm text-linen-50 placeholder:text-linen-100/55 focus:outline-none"
+                />
+                <button
+                  ref={submitRef}
+                  type="submit"
+                  className="eyebrow inline-flex shrink-0 items-center gap-1.5 py-1 text-brass-300 transition-colors duration-200 hover:text-brass-200"
+                >
+                  Assinar
+                  <ArrowUpRightIcon size={14} />
+                </button>
+              </div>
+              <p
+                id="footer-email-status"
+                role="status"
+                aria-live="polite"
+                className={clsx(
+                  'mt-3 flex min-h-5 items-center gap-2 text-xs leading-5',
+                  status.kind === 'error' && 'text-clay-400',
+                  status.kind === 'success' && 'text-brass-300',
+                  status.kind === 'idle' && 'text-linen-100/55',
+                )}
+              >
+                {status.kind === 'success' && <CheckIcon size={14} />}
+                {status.kind === 'error' && status.message}
+                {status.kind === 'success' && 'Pronto! Você vai receber nossas próximas cartas.'}
+                {status.kind === 'idle' && 'Lançamentos e bastidores, uma vez por mês.'}
+              </p>
             </form>
           </div>
 
@@ -69,7 +146,7 @@ export function Footer() {
               <ul className="mt-5 space-y-3">
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <NavLink to={l.to} className="text-sm text-linen-100/70 transition-colors hover:text-linen-50">
+                    <NavLink to={l.to} className={clsx(underline, 'text-sm text-linen-100/70 hover:text-linen-50')}>
                       {l.label}
                     </NavLink>
                   </li>
@@ -79,18 +156,20 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-20 flex flex-col items-start justify-between gap-6 border-t border-linen-100/15 pt-8 text-xs text-linen-100/55 md:flex-row md:items-center">
+        <div className="mt-20 flex flex-col items-start justify-between gap-6 border-t border-linen-100/15 pt-8 text-xs text-linen-100/60 md:flex-row md:items-center">
           <p>© {new Date().getFullYear()} SALABELLA Móveis — CNPJ 00.000.000/0001-00</p>
           <div className="flex gap-6">
-            <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="hover:text-linen-100/90">
-              WhatsApp
-            </a>
-            <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="hover:text-linen-100/90">
-              Instagram
-            </a>
-            <a href={PINTEREST_URL} target="_blank" rel="noreferrer" className="hover:text-linen-100/90">
-              Pinterest
-            </a>
+            {SOCIAL.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noreferrer"
+                className={clsx(underline, 'hover:text-linen-50')}
+              >
+                {s.label}
+              </a>
+            ))}
           </div>
         </div>
       </div>
