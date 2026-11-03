@@ -1,9 +1,10 @@
-import { useMemo, useRef } from 'react'
+import { useLayoutEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { Html, Line } from '@react-three/drei'
 import type { Line2 } from 'three-stdlib'
 import { palette, brassMaterial } from '@/three/common/materials'
+import { toOverlayLayer } from '@/three/common/ContactShadow'
 import type { CalloutDef } from './dimensions'
 
 type DimensionCalloutProps = {
@@ -38,6 +39,10 @@ export function DimensionCallout({ def, label, value, compact = false }: Dimensi
   const lineRef = useRef<Line2>(null)
   const pillRef = useRef<HTMLDivElement>(null)
   const fade = useRef(0)
+  const group = useRef<THREE.Group>(null!)
+  // Overlay layer: drawn by the main camera, never by the contact-shadow
+  // capture (else the leader + dot leave a ghost dumbbell on the floor).
+  useLayoutEffect(() => toOverlayLayer(group.current), [])
   const pillHalf = compact ? { w: 58, h: 13 } : { w: 74, h: 15 }
 
   useFrame(({ camera, invalidate }, dt) => {
@@ -57,7 +62,7 @@ export function DimensionCallout({ def, label, value, compact = false }: Dimensi
   })
 
   return (
-    <group>
+    <group ref={group}>
       <mesh position={anchor} material={dotMat} renderOrder={2}>
         <sphereGeometry args={[0.0105, 20, 14]} />
       </mesh>

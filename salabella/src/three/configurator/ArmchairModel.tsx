@@ -202,9 +202,24 @@ export function ArmchairModel({ swatchId, reduced = false, onReady }: ArmchairMo
     if (dr > 1e-4) invalidate()
   })
 
-  useEffect(() => {
-    onReady?.()
-  }, [onReady])
+  // Ready = the chair has actually been drawn, not merely mounted: the first
+  // useFrame runs right before the first render of this mesh; the next
+  // animation frame is after it was presented, so the skeleton never fades
+  // onto a blank canvas (shader compile can take seconds on slow GPUs).
+  const readyFired = useRef(false)
+  const readyRaf = useRef(0)
+  useFrame(() => {
+    if (readyFired.current) return
+    readyFired.current = true
+    readyRaf.current = requestAnimationFrame(() => onReady?.())
+  })
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(readyRaf.current)
+      readyFired.current = false
+    },
+    [],
+  )
 
   return (
     <group name="poltrona-aurora">

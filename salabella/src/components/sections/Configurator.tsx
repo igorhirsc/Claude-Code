@@ -55,7 +55,7 @@ export function StageSkeleton({ hidden }: { hidden: boolean }) {
           <div className="h-16 w-[16%] animate-pulse rounded-[999px_999px_14px_14px] bg-linen-300/80" />
         </div>
         <div className="mt-3 h-2 w-[110%] rounded-[50%] bg-ink-900/10 blur-[3px]" />
-        <p className="eyebrow mt-6 text-[0.6875rem] text-ink-600">Preparando a peça</p>
+        <p className="eyebrow mt-6 whitespace-nowrap text-ink-600">Preparando a peça</p>
       </div>
     </div>
   )
@@ -173,8 +173,11 @@ export default function Configurator() {
         {/* ------------------------------------------------------- copy -- */}
         <div className="md:col-span-5 lg:col-span-4 lg:col-start-9">
           <p data-reveal className="eyebrow flex items-center gap-3 text-clay-600">
-            <span aria-hidden className="h-px w-8 bg-brass-400" />
-            Configurador · Peça em destaque
+            <span aria-hidden className="h-px w-8 shrink-0 bg-brass-400" />
+            {/* the full label only where it fits on one line */}
+            <span className="whitespace-nowrap">
+              <span className="hidden min-[1400px]:inline">Configurador · </span>Peça em destaque
+            </span>
           </p>
           <h2
             id="configurador-titulo"
@@ -197,7 +200,8 @@ export default function Configurator() {
             envelhece bonita com ele.
           </p>
 
-          <div data-reveal className="mt-9">
+          {/* md–xl copy column is ~263–357px: tighten so all five swatches hold one row */}
+          <div data-reveal className="mt-9 md:max-xl:[&_[role=group]]:gap-2 md:max-xl:[&_[role=group]>button]:size-11">
             <SwatchPicker value={swatch} onChange={setSwatch} />
           </div>
 

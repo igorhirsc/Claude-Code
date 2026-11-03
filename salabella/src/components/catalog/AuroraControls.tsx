@@ -80,10 +80,12 @@ export function SwatchPicker({
 
 export function SpecList({ tone = 'light', className }: { tone?: 'light' | 'dark'; className?: string }) {
   return (
-    <dl className={clsx('grid max-w-[30rem] grid-cols-2 gap-x-8 gap-y-5', className)}>
+    <dl className={clsx('grid max-w-[30rem] grid-cols-2 gap-x-8 gap-y-5 md:gap-x-5 xl:gap-x-8', className)}>
       {SPECS.map((s) => (
-        <div key={s.id} className={clsx('border-t pt-3', tone === 'dark' ? 'border-linen-50/15' : 'border-ink-900/15')}>
-          <dt className={clsx('eyebrow text-[0.6875rem]', tone === 'dark' ? 'text-linen-300' : 'text-ink-600')}>{s.label}</dt>
+        <div key={s.id} className={clsx('min-w-0 border-t pt-3', tone === 'dark' ? 'border-linen-50/15' : 'border-ink-900/15')}>
+          {/* .eyebrow is unlayered CSS, so size/tracking overrides need `!`. In the
+              narrow md–lg copy column, "Profundidade" must fit its half (≈120px). */}
+          <dt className={clsx('eyebrow md:text-[0.6875rem]! md:tracking-[0.2em]! xl:text-xs! xl:tracking-[0.28em]!', tone === 'dark' ? 'text-linen-300' : 'text-ink-600')}>{s.label}</dt>
           <dd className={clsx('mt-1.5 font-display text-2xl tabular-nums', tone === 'dark' ? 'text-linen-50' : 'text-ink-900')}>
             {s.cm}
             <span className="ml-1 font-sans text-sm">cm</span>

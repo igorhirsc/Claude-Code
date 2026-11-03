@@ -48,10 +48,17 @@ html.has-custom-cursor :is(${TEXT_ENTRY}){cursor:text!important}`
 
     const dur = reduced ? 0 : 1
     gsap.set([dot, ring], { xPercent: -50, yPercent: -50, autoAlpha: 0 })
-    const dotX = gsap.quickTo(dot, 'x', { duration: 0.12 * dur, ease: 'power3.out' })
-    const dotY = gsap.quickTo(dot, 'y', { duration: 0.12 * dur, ease: 'power3.out' })
-    const ringX = gsap.quickTo(ring, 'x', { duration: 0.5 * dur, ease: 'power3.out' })
-    const ringY = gsap.quickTo(ring, 'y', { duration: 0.5 * dur, ease: 'power3.out' })
+    // Reduced motion: no lag at all. quickTo with a zero duration never
+    // advances, so snap with quickSetter instead (it writes immediately).
+    type Mover = (value: number) => void
+    const mover = (el: HTMLElement, prop: 'x' | 'y', seconds: number): Mover =>
+      reduced
+        ? (gsap.quickSetter(el, prop, 'px') as Mover)
+        : (gsap.quickTo(el, prop, { duration: seconds, ease: 'power3.out' }) as unknown as Mover)
+    const dotX = mover(dot, 'x', 0.12)
+    const dotY = mover(dot, 'y', 0.12)
+    const ringX = mover(ring, 'x', 0.5)
+    const ringY = mover(ring, 'y', 0.5)
 
     let domHover = false
     let canvasHover = false

@@ -36,17 +36,36 @@ page.on('pageerror', (e) => errors.push(String(e)))
 
 await page.goto(base + '/', { waitUntil: 'networkidle', timeout: 90000 })
 await page.waitForTimeout(2500)
-await page.evaluate(() => document.querySelector('#configurador')?.scrollIntoView({ block: 'start', behavior: 'instant' }))
+await page.evaluate(() => document.querySelector('#configurador canvas, #configurador')?.scrollIntoView({ block: 'center', behavior: 'instant' }))
 await page.waitForFunction(() => !!window.__aurora && !!document.querySelector('#configurador [data-ready]'), null, { timeout: 120000 })
 await page.waitForTimeout(1200)
 
 // Clip shots to the canvas rect (element screenshots wait on "stable",
-// which a live WebGL canvas under smooth scroll never quite is).
-const clip = await page.evaluate(() => {
-  const r = document.querySelector('#configurador canvas').getBoundingClientRect()
-  return { x: Math.round(r.left), y: Math.round(r.top), width: Math.round(r.width), height: Math.round(r.height) }
-})
-const canvas = { screenshot: (o) => page.screenshot({ ...o, clip }) }
+// which a live WebGL canvas under smooth scroll never quite is). The page
+// scrolls smoothly (Lenis), so wait until the rect stops moving, and clamp
+// it to the viewport: Playwright rejects a clip that leaves the image.
+async function stableClip() {
+  let prev = null
+  for (let i = 0; i < 60; i++) {
+    const r = await page.evaluate(() => {
+      const el = document.querySelector('#configurador canvas')
+      if (!el) return null
+      const b = el.getBoundingClientRect()
+      return { x: b.left, y: b.top, w: b.width, h: b.height, vw: innerWidth, vh: innerHeight }
+    })
+    if (r && prev && Math.abs(r.x - prev.x) < 0.5 && Math.abs(r.y - prev.y) < 0.5 && Math.abs(r.h - prev.h) < 0.5) {
+      const x0 = Math.max(0, Math.round(r.x)), y0 = Math.max(0, Math.round(r.y))
+      const x1 = Math.min(r.vw, Math.round(r.x + r.w)), y1 = Math.min(r.vh, Math.round(r.y + r.h))
+      if (x1 - x0 > 50 && y1 - y0 > 50) return { x: x0, y: y0, width: x1 - x0, height: y1 - y0 }
+      // canvas not in view: put it there again
+      await page.evaluate(() => document.querySelector('#configurador canvas').scrollIntoView({ block: 'center', behavior: 'instant' }))
+    }
+    prev = r
+    await page.waitForTimeout(250)
+  }
+  throw new Error('configurator canvas never settled in the viewport')
+}
+const canvas = { screenshot: async (o) => page.screenshot({ ...o, clip: await stableClip() }) }
 const components = await page.evaluate(() => window.__aurora.meshComponents())
 
 /** Classify pixels and count background regions not connected to the border. */

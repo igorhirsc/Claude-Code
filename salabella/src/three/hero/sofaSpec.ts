@@ -23,8 +23,12 @@ export const SOFA = {
 export const ARM_X = SOFA.width / 2 - 0.01 - SOFA.arm.w / 2
 export const ARM_INNER = ARM_X - SOFA.arm.w / 2
 export const SEAT_TOP = SOFA.base + SOFA.seat.h
-/** Arm & seat overlap: the seat tucks this far into each arm's flat face. */
-export const SEAT_TUCK = 0.03
+/**
+ * Arm & seat overlap: the seat tucks this far into each arm. Must be at least
+ * the seat's corner radius, or the seat's rounded end pulls away from the
+ * arm's flat face and leaves a dark notch where they meet.
+ */
+export const SEAT_TUCK = SOFA.seat.r + 0.005
 
 /** Backrest pivots on its bottom-front edge; this returns its centre + rotation. */
 export function backTransform() {

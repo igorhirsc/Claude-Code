@@ -27,6 +27,9 @@ const sph = new THREE.Spherical()
 const off = new THREE.Vector3()
 
 type CameraRigProps = {
+  /** Section on screen. Off screen the rig writes nothing (no sway, dolly,
+   *  parallax or controls.update), so frameloop="demand" really goes idle. */
+  active: boolean
   layout: HeroLayout
   /** Reduced motion: static framing, no sweep, no parallax, no dolly. */
   reduced: boolean
@@ -41,7 +44,7 @@ type CameraRigProps = {
  * canvas size: in the side-by-side layout a lens shift (setViewOffset)
  * parks the sofa in the right-hand column without moving the orbit pivot.
  */
-export function CameraRig({ layout, reduced, calm }: CameraRigProps) {
+export function CameraRig({ active, layout, reduced, calm }: CameraRigProps) {
   const controls = useRef<OrbitControlsImpl>(null)
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera
   const size = useThree((s) => s.size)
@@ -136,7 +139,7 @@ export function CameraRig({ layout, reduced, calm }: CameraRigProps) {
   // with a consistent position + lookAt.
   useFrame((_, rawDt) => {
     const c = controls.current
-    if (!c) return
+    if (!c || !active) return
     const s = st.current
     const dt = Math.min(rawDt, 1 / 20)
     const now = performance.now()
@@ -189,6 +192,7 @@ export function CameraRig({ layout, reduced, calm }: CameraRigProps) {
       ref={controls}
       makeDefault
       target={TARGET}
+      enabled={active}
       enableDamping
       dampingFactor={0.075}
       rotateSpeed={0.55}

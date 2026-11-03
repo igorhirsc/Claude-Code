@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, type MutableRefObject } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
-import { ContactShadows, OrbitControls } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { CanvasShell } from '@/three/common/CanvasShell'
+import { ContactShadow } from '@/three/common/ContactShadow'
 import { StudioLighting, STUDIO_KEY_POSITION } from '@/three/common/Lighting'
 import { PostFX } from '@/three/common/PostFX'
 import { palette } from '@/three/common/materials'
@@ -42,10 +43,13 @@ function cameraPosition(azimuth: number, polar: number, distance: number) {
 }
 
 function Rig({
+  active,
   reduced,
   distance,
   apiRef,
 }: {
+  /** Off screen: no sway, no controls.update() → demand frameloop goes idle. */
+  active: boolean
   reduced: boolean
   distance: number
   apiRef?: MutableRefObject<ConfiguratorApi | null>
@@ -116,7 +120,7 @@ function Rig({
 
   useFrame((_, dt) => {
     const c = controls.current
-    if (!c) return
+    if (!c || !active) return
     if (import.meta.env.DEV && (window as unknown as Record<string, unknown>).__auroraFrozen) return
     const az = c.getAzimuthalAngle()
     if (goal.current !== null) {
@@ -150,6 +154,7 @@ function Rig({
       ref={controls}
       makeDefault
       target={TARGET}
+      enabled={active}
       enableDamping
       dampingFactor={0.075}
       rotateSpeed={0.6}
@@ -243,13 +248,14 @@ function DebugHook() {
 }
 
 function Scene({
+  active,
   swatchId,
   reduced = false,
   compact = false,
   callouts = true,
   apiRef,
   onReady,
-}: Omit<ConfiguratorSceneProps, 'active'>) {
+}: ConfiguratorSceneProps) {
   const distance = compact ? 3.55 : 3.05
   const labels = useMemo(
     () =>
@@ -267,10 +273,11 @@ function Scene({
       {/* a touch of direct key light, from the rig's own key position, for form */}
       <directionalLight position={STUDIO_KEY_POSITION} intensity={0.55} color={palette.linen50} />
       <ArmchairModel swatchId={swatchId} reduced={reduced} onReady={onReady} />
-      {/* one soft contact shadow; body and sabots both sit inside its 0.9 m reach */}
-      <ContactShadows position={[0, 0.0005, 0]} scale={3.2} resolution={256} far={0.65} blur={2.6} opacity={0.55} color={palette.ink900} frames={1} />
+      {/* one soft contact shadow, captured once (the chair never moves). The
+          callouts live on the overlay layer, so they never cast into it. */}
+      <ContactShadow position={[0, -0.0005, 0]} scale={[3.2, 3.2]} resolution={1024} far={0.65} blur={2.6} opacity={0.55} color={palette.ink900} frames={1} />
       {callouts && labels.map((l) => <DimensionCallout key={l.def.id} def={l.def} label={l.label} value={l.value} compact={compact} />)}
-      <Rig reduced={reduced} distance={distance} apiRef={apiRef} />
+      <Rig active={active} reduced={reduced} distance={distance} apiRef={apiRef} />
       {import.meta.env.DEV && <DebugHook />}
       <PostFX bloom={false} />
     </>
@@ -290,7 +297,7 @@ export default function ConfiguratorScene({ active, ...rest }: ConfiguratorScene
       shadows={false}
       aria-label="Poltrona Aurora em 3D — arraste para girar"
     >
-      <Scene {...rest} />
+      <Scene active={active} {...rest} />
     </CanvasShell>
   )
 }

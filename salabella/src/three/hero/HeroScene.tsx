@@ -1,8 +1,8 @@
 import { Suspense, useMemo } from 'react'
 import * as THREE from 'three'
-import { ContactShadows } from '@react-three/drei'
 import { CuboidCollider, Physics, RigidBody } from '@react-three/rapier'
 import { CanvasShell } from '@/three/common/CanvasShell'
+import { ContactShadow, toOverlayLayer } from '@/three/common/ContactShadow'
 import { StudioLighting, STUDIO_KEY_POSITION } from '@/three/common/Lighting'
 import { PostFX } from '@/three/common/PostFX'
 import { palette } from '@/three/common/materials'
@@ -153,16 +153,14 @@ export default function HeroScene({ active, layout, reduced, lite }: HeroScenePr
         </Physics>
       </Suspense>
 
-      {/* Cast shadow from the key light onto the floor. */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0005, 0]} receiveShadow>
+      {/* Cast shadow from the key light onto the floor. A catcher, never a
+          caster: it lives on the overlay layer the contact captures skip. */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.0005, 0]} receiveShadow ref={(m) => m && toOverlayLayer(m)}>
         <planeGeometry args={[8, 8]} />
         <shadowMaterial color={palette.ink900} opacity={0.1} transparent depthWrite={false} />
       </mesh>
-      {/* Tight contact occlusion where the brass feet meet the floor...
-          (ContactShadows must sit just BELOW y=0: drei renders its blur quad
-          at the world origin, which has to fall inside the shadow camera's
-          near/far range or the blur silently never happens.) */}
-      <ContactShadows
+      {/* Tight contact occlusion where the brass feet meet the floor... */}
+      <ContactShadow
         position={[0, -0.001, 0]}
         scale={[3, 2.2]}
         resolution={lite ? 512 : 1024}
@@ -172,7 +170,7 @@ export default function HeroScene({ active, layout, reduced, lite }: HeroScenePr
         color={palette.ink900}
       />
       {/* ...and a broad, soft ambient pool under the whole piece. */}
-      <ContactShadows
+      <ContactShadow
         position={[0, -0.0015, 0]}
         scale={[4, 3]}
         resolution={lite ? 256 : 512}
@@ -182,7 +180,7 @@ export default function HeroScene({ active, layout, reduced, lite }: HeroScenePr
         color={palette.ink900}
       />
 
-      <CameraRig layout={layout} reduced={reduced} calm={lite} />
+      <CameraRig active={active} layout={layout} reduced={reduced} calm={lite} />
       <PostFX bloom={false} vignette={false} grain={!lite && !reduced} ao={!lite} />
     </CanvasShell>
   )

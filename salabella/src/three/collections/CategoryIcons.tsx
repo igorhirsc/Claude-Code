@@ -161,7 +161,7 @@ function useMats() {
 /* Icons                                                                     */
 /* ------------------------------------------------------------------------ */
 
-/** Sofá — long, low and rectilinear: track arms, two seat cushions, legs. */
+/** Sofá — long, low and rectilinear: track arms, bench cushions, legs. */
 export function SofaIcon() {
   const m = useMats()
   const F = SHADOW_Y.sofas
@@ -179,29 +179,25 @@ export function SofaIcon() {
         </mesh>
       ))}
       {/* plinth: F+0.12 → F+0.38 */}
-      <RoundedBox args={[2.24, 0.26, 0.92]} radius={0.05} smoothness={4} position={[0, F + 0.25, 0]} material={m.sofaFabric} />
+      <RoundedBox args={[2.24, 0.26, 0.92]} radius={0.07} smoothness={5} position={[0, F + 0.25, 0]} material={m.sofaFabric} />
       {/* backrest, overlapping the plinth by 0.03 */}
-      <RoundedBox args={[2.24, 0.46, 0.24]} radius={0.08} smoothness={4} position={[0, F + 0.58, -0.34]} material={m.sofaFabric} />
+      <RoundedBox args={[2.24, 0.46, 0.24]} radius={0.1} smoothness={5} position={[0, F + 0.58, -0.34]} material={m.sofaFabric} />
       {/* track arms */}
       {[-1.02, 1.02].map((x) => (
-        <RoundedBox key={x} args={[0.2, 0.46, 0.92]} radius={0.06} smoothness={4} position={[x, F + 0.37, 0]} material={m.sofaFabric} />
+        <RoundedBox key={x} args={[0.2, 0.46, 0.92]} radius={0.09} smoothness={5} position={[x, F + 0.37, 0]} material={m.sofaFabric} />
       ))}
-      {/* seat cushions sink 0.02 into the plinth */}
-      {[-0.46, 0.46].map((x) => (
-        <RoundedBox key={x} args={[0.9, 0.17, 0.74]} radius={0.07} smoothness={4} position={[x, F + 0.445, 0.07]} material={m.sofaFabric} />
-      ))}
-      {/* back cushions, leaning slightly */}
-      {[-0.46, 0.46].map((x) => (
-        <RoundedBox
-          key={x}
-          args={[0.9, 0.32, 0.16]}
-          radius={0.07}
-          smoothness={4}
-          position={[x, F + 0.64, -0.17]}
-          rotation={[-0.12, 0, 0]}
-          material={m.sofaFabric}
-        />
-      ))}
+      {/* ONE bench seat cushion sinking 0.02 into the plinth and tucked into
+          the arms, so the icon reads as one soft upholstered volume */}
+      <RoundedBox args={[1.9, 0.17, 0.76]} radius={0.08} smoothness={5} position={[0, F + 0.445, 0.07]} material={m.sofaFabric} />
+      {/* ONE back cushion, leaning slightly, sunk into the backrest */}
+      <RoundedBox
+        args={[1.9, 0.32, 0.2]}
+        radius={0.09}
+        smoothness={5}
+        position={[0, F + 0.63, -0.19]}
+        rotation={[-0.12, 0, 0]}
+        material={m.sofaFabric}
+      />
     </group>
   )
 }

@@ -1,9 +1,10 @@
-import { lazy, Suspense, useLayoutEffect, useRef, type PointerEvent } from 'react'
+import { lazy, Suspense, useLayoutEffect, useRef, useState, type PointerEvent } from 'react'
 import { Link } from 'react-router-dom'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { CATEGORIES } from '@/data/categories'
 import { useCollectionsStore } from '@/three/collections/store'
+import type { CardMetrics } from '@/three/collections/CollectionsScene'
 import { useIsSmallViewport, useReducedMotion, useSectionVisibility } from '@/hooks/useMediaFlags'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -35,6 +36,33 @@ export default function Collections() {
   const reduced = useReducedMotion()
   const headRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLUListElement>(null)
+
+  // Where each card's text actually sits (titles wrap differently per width
+  // and label), so the 3D icon's floor is placed above the real title rather
+  // than at a fixed fraction of the card.
+  const [metrics, setMetrics] = useState<CardMetrics[] | null>(null)
+  useLayoutEffect(() => {
+    const grid = gridRef.current
+    if (!grid) return
+    const measure = () => {
+      const next = Array.from(grid.querySelectorAll<HTMLElement>('[data-card]')).map((card) => {
+        const text = card.querySelector<HTMLElement>('[data-card-text]')!
+        const index = card.querySelector<HTMLElement>('[data-card-index]')!
+        // offsetTop: layout positions, unaffected by the hover/entrance transforms
+        return { textTop: text.offsetTop, topPad: index.offsetTop + index.offsetHeight }
+      })
+      setMetrics((prev) =>
+        prev && prev.length === next.length && prev.every((p, i) => p.textTop === next[i].textTop && p.topPad === next[i].topPad)
+          ? prev
+          : next,
+      )
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(grid)
+    document.fonts?.ready.then(measure).catch(() => {})
+    return () => ro.disconnect()
+  }, [])
 
   const setHovered = useCollectionsStore((s) => s.setHovered)
   const setFocused = useCollectionsStore((s) => s.setFocused)
@@ -152,7 +180,7 @@ export default function Collections() {
           <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
             {everInView && (
               <Suspense fallback={null}>
-                <CollectionsScene active={inView} small={small} reduced={reduced} />
+                <CollectionsScene active={inView} small={small} reduced={reduced} metrics={metrics} />
               </Suspense>
             )}
           </div>
@@ -161,6 +189,7 @@ export default function Collections() {
             {CATEGORIES.map((c, i) => (
               <li key={c.id} className="aspect-[4/5]">
                 <Link
+                  data-card
                   to={`/colecoes?categoria=${c.id}`}
                   aria-label={`Ver ${c.label.toLowerCase()} no catálogo`}
                   onPointerEnter={() => setHovered(c.id)}
@@ -170,10 +199,10 @@ export default function Collections() {
                   onBlur={() => setFocused(null)}
                   className="group relative flex h-full flex-col justify-end border border-ink-700 p-4 transition-[translate,border-color] duration-[220ms] ease-aaa hover:-translate-y-1.5 hover:border-brass-500 focus-visible:-translate-y-1.5 focus-visible:border-brass-500 md:p-6"
                 >
-                  <span aria-hidden className="eyebrow absolute top-4 left-4 text-brass-400 tabular-nums md:top-6 md:left-6">
+                  <span data-card-index aria-hidden className="eyebrow absolute top-4 left-4 text-brass-400 tabular-nums md:top-6 md:left-6">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <div className="flex items-center justify-between gap-3">
+                  <div data-card-text className="flex items-center justify-between gap-3">
                     <h3 className="font-display text-xl leading-tight text-linen-50 md:text-2xl lg:text-[1.75rem]">
                       {c.label}
                     </h3>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { easing } from 'maath'
@@ -28,29 +28,101 @@ const GRID = {
   gapSmall: 12, // gap-3
   gapMd: 24, // gap-6
   aspect: 5 / 4, // height / width  (aspect-[4/5])
-  /** Icon's floor sits this far down the card (fraction of card height). */
+  /** Fallback floor line (fraction of card height) until the DOM is measured. */
   floorFrac: 0.6,
   /** Card lift on hover/focus: hover:-translate-y-1.5 = 6px. */
   liftPx: 6,
+  /** Air between an icon's lowest point (any pose) and the card's title. */
+  titleClearPx: 24,
+  /** Air under the card's index numeral / beside the card's walls. */
+  topClearPx: 10,
+  sideClearPx: 14,
 }
 
 /** World units are CSS pixels (orthographic, zoom 1). */
-const BASE_PX = 120
+const BASE_PX = 132
 const REF_CELL = 360
-// 0.62 (the old floor) let icons crowd the 165px cards at 390px wide; 0.5 keeps
-// them legible with ~20% breathing room to the card edges.
+// 0.5 keeps icons legible in the 165px cards at 390px wide.
 const MIN_CELL_SCALE = 0.5
-const MAX_CELL_SCALE = 1.1
+const MAX_CELL_SCALE = 1.25
 
 const BASE_PITCH = 0.36
 const TILT_YAW = 0.42
 const TILT_PITCH = 0.14
+const SWAY_YAW = 0.07
 /** Keyboard focus has no pointer: lean to a fixed, flattering angle. */
 const FOCUS_POINTER = { x: 0.55, y: 0.25 }
 
+/** Shadow/glow planes sit behind every icon's deepest point (camera at z=1000). */
+const Z_CONTACT = -1300
+const Z_SHADOW = -1350
+const Z_GLOW = -1400
+
+/**
+ * Where each card's DOM text sits, measured by Collections.tsx (px from the
+ * card's top edge): the icon must live between the index numeral and the
+ * title block, whatever the title's line count at this width.
+ */
+export type CardMetrics = { textTop: number; topPad: number }
+
+/**
+ * Screen-space extents of an icon in authored units, relative to its floor
+ * pivot, over EVERY pose it can take (idle sway, hover/focus tilt). Measured
+ * from the real vertices once per icon.
+ */
+type Extents = { minX: number; maxX: number; minY: number; maxY: number }
+const extentsCache = new Map<CategoryId, Extents>()
+
+function measureExtents(id: CategoryId, root: THREE.Object3D): Extents {
+  const hit = extentsCache.get(id)
+  if (hit) return hit
+  root.updateWorldMatrix(true, true)
+  const inv = new THREE.Matrix4().copy(root.matrixWorld).invert()
+  const m = new THREE.Matrix4()
+  const p = new THREE.Vector3()
+  const pts: number[] = []
+  const F = SHADOW_Y[id]
+  root.traverse((o) => {
+    const mesh = o as THREE.Mesh
+    if (!mesh.isMesh) return
+    m.multiplyMatrices(inv, mesh.matrixWorld)
+    const pos = mesh.geometry.attributes.position
+    for (let i = 0; i < pos.count; i++) {
+      p.fromBufferAttribute(pos, i).applyMatrix4(m)
+      pts.push(p.x, p.y - F, p.z)
+    }
+  })
+  const e: Extents = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity }
+  const yaw0 = BASE_YAW[id]
+  const yawSpan = TILT_YAW + SWAY_YAW
+  for (let a = 0; a <= 8; a++) {
+    const yaw = yaw0 - yawSpan + (a / 8) * 2 * yawSpan
+    const cy = Math.cos(yaw)
+    const sy = Math.sin(yaw)
+    for (const pitch of [BASE_PITCH - TILT_PITCH, BASE_PITCH, BASE_PITCH + TILT_PITCH]) {
+      const cp = Math.cos(pitch)
+      const sp = Math.sin(pitch)
+      for (let i = 0; i < pts.length; i += 3) {
+        const x = pts[i]
+        const y = pts[i + 1]
+        const z = pts[i + 2]
+        // Euler XYZ (yaw, then pitch), as the pivot applies it
+        const X = x * cy + z * sy
+        const Y = y * cp + sp * (x * sy - z * cy)
+        if (X < e.minX) e.minX = X
+        if (X > e.maxX) e.maxX = X
+        if (Y < e.minY) e.minY = Y
+        if (Y > e.maxY) e.maxY = Y
+      }
+    }
+  }
+  extentsCache.set(id, e)
+  return e
+}
+
 type Cell = { id: CategoryId; x: number; floorY: number; cellW: number; cellH: number; scale: number }
 
-function useCells(small: boolean): Cell[] {
+function useCells(small: boolean, metrics: CardMetrics[] | null, extents: Partial<Record<CategoryId, Extents>>): Cell[] {
   const { width, height } = useThree((s) => s.size)
   return useMemo(() => {
     const cols = small ? GRID.colsSmall : GRID.colsMd
@@ -63,17 +135,30 @@ function useCells(small: boolean): Cell[] {
       const row = Math.floor(i / cols)
       const left = col * (cellW + gap)
       const top = row * (cellH + gap)
+      // px per authored unit for this icon
+      let scale = ICON_SCALE[c.id] * cellScale * BASE_PX
+      let floor = cellH * GRID.floorFrac
+      const m = metrics?.[i]
+      const e = extents[c.id]
+      if (m && e) {
+        // Lowest point (any pose) rests GRID.titleClearPx above the title;
+        // the icon shrinks if it would otherwise reach the numeral or walls.
+        const bottom = m.textTop - GRID.titleClearPx
+        const room = bottom - (m.topPad + GRID.topClearPx) - GRID.liftPx
+        const halfW = Math.max(-e.minX, e.maxX)
+        scale = Math.max(1, Math.min(scale, room / (e.maxY - e.minY), (cellW / 2 - GRID.sideClearPx) / halfW))
+        floor = bottom + e.minY * scale
+      }
       return {
         id: c.id,
         x: left + cellW / 2 - width / 2,
-        floorY: height / 2 - (top + cellH * GRID.floorFrac),
+        floorY: height / 2 - (top + floor),
         cellW,
         cellH,
-        // px per authored unit for this icon
-        scale: ICON_SCALE[c.id] * cellScale * BASE_PX,
+        scale,
       }
     })
-  }, [width, height, small])
+  }, [width, height, small, metrics, extents])
 }
 
 /** One soft radial-gradient texture, shared by every shadow and glow. */
@@ -127,13 +212,27 @@ function footprintEllipse(w: number, d: number, yaw: number, pitch: number) {
   return { rx: 2.6 * Math.sqrt(mid + r), ry: 2.6 * Math.sqrt(Math.max(mid - r, 1e-6)), angle }
 }
 
-function CategoryIcon({ cell, index, reduced, tex }: { cell: Cell; index: number; reduced: boolean; tex: THREE.Texture }) {
+function CategoryIcon({
+  cell,
+  index,
+  reduced,
+  tex,
+  onExtents,
+}: {
+  cell: Cell
+  index: number
+  reduced: boolean
+  tex: THREE.Texture
+  onExtents: (id: CategoryId, e: Extents) => void
+}) {
   const Icon = CATEGORY_ICONS[cell.id]
   const F = SHADOW_Y[cell.id]
   const fp = SHADOW_FOOTPRINT[cell.id]
 
   const root = useRef<THREE.Group>(null!)
   const pivot = useRef<THREE.Group>(null!)
+  const authored = useRef<THREE.Group>(null!)
+  useLayoutEffect(() => onExtents(cell.id, measureExtents(cell.id, authored.current)), [cell.id, onExtents])
   const shadow = useRef<THREE.Mesh>(null!)
   const glow = useRef<THREE.Mesh>(null!)
   const shadowMat = useRef<THREE.MeshBasicMaterial>(null!)
@@ -145,7 +244,6 @@ function CategoryIcon({ cell, index, reduced, tex }: { cell: Cell; index: number
         map: tex,
         color: palette.ink900,
         transparent: true,
-        depthTest: false,
         depthWrite: false,
         toneMapped: false,
         opacity: 0,
@@ -191,7 +289,7 @@ function CategoryIcon({ cell, index, reduced, tex }: { cell: Cell; index: number
     const lz = fp.cz + kz
     const sx = lx * Math.cos(yaw) + lz * Math.sin(yaw)
     const sy = Math.sin(k.pitch) * (lx * Math.sin(yaw) - lz * Math.cos(yaw))
-    shadow.current.position.set(sx * S, sy * S, -1)
+    shadow.current.position.set(sx * S, sy * S, Z_SHADOW)
     shadow.current.rotation.set(0, 0, el.angle)
     shadow.current.scale.set(el.rx * S, el.ry * S + 3, 1)
     shadowMat.current.opacity = 0.85 * e * (1 - 0.15 * k.hot)
@@ -203,7 +301,7 @@ function CategoryIcon({ cell, index, reduced, tex }: { cell: Cell; index: number
     contacts.forEach(([x, z, r], i) => {
       const mesh = contactRefs.current[i]
       if (!mesh) return
-      mesh.position.set((x * cY + z * sY) * S, sP * (x * sY - z * cY) * S, -0.5)
+      mesh.position.set((x * cY + z * sY) * S, sP * (x * sY - z * cY) * S, Z_CONTACT)
       mesh.scale.set(r * 1.55 * S, r * 1.55 * S * sP + 1.5, 1)
     })
     contactMat.opacity = 0.85 * e
@@ -211,17 +309,18 @@ function CategoryIcon({ cell, index, reduced, tex }: { cell: Cell; index: number
     glowMat.current.opacity = (0.45 + 0.3 * k.hot) * Math.min(1, e * 1.4)
   })
 
-  // shadow & glow live at the floor pivot: y = SHADOW_Y * ICON_SCALE * cellScale (* px)
+  // Shadow, contacts & glow live at the floor pivot, depth-tested and parked
+  // behind the icon's deepest point: they can only ever show AROUND the
+  // object, never on top of it (no x-ray blobs of hidden back legs).
   return (
     <group ref={root}>
-      <mesh ref={glow} position={[0, cell.cellH * 0.16, -2]} scale={[cell.cellW * 0.5, cell.cellH * 0.46, 1]} renderOrder={-2}>
+      <mesh ref={glow} position={[0, cell.cellH * 0.16, Z_GLOW]} scale={[cell.cellW * 0.5, cell.cellH * 0.46, 1]} renderOrder={-2}>
         <planeGeometry args={[2, 2]} />
         <meshBasicMaterial
           ref={glowMat}
           map={tex}
           color={palette.ink600}
           transparent
-          depthTest={false}
           depthWrite={false}
           toneMapped={false}
           opacity={0}
@@ -234,7 +333,6 @@ function CategoryIcon({ cell, index, reduced, tex }: { cell: Cell; index: number
           map={tex}
           color={palette.ink900}
           transparent
-          depthTest={false}
           depthWrite={false}
           toneMapped={false}
           opacity={0}
@@ -248,15 +346,19 @@ function CategoryIcon({ cell, index, reduced, tex }: { cell: Cell; index: number
       <group ref={pivot}>
         {/* move the authored floor (y = F) onto the pivot so tilts rock on the base */}
         <group scale={cell.scale} position={[0, -F * cell.scale, 0]}>
-          <Icon />
+          <group ref={authored} userData={{ iconId: cell.id }}>
+            <Icon />
+          </group>
         </group>
       </group>
     </group>
   )
 }
 
-function Scene({ small, reduced }: { small: boolean; reduced: boolean }) {
-  const cells = useCells(small)
+function Scene({ small, reduced, metrics }: { small: boolean; reduced: boolean; metrics: CardMetrics[] | null }) {
+  const [extents, setExtents] = useState<Partial<Record<CategoryId, Extents>>>(() => Object.fromEntries(extentsCache))
+  const onExtents = useCallback((id: CategoryId, e: Extents) => setExtents((prev) => (prev[id] === e ? prev : { ...prev, [id]: e })), [])
+  const cells = useCells(small, metrics, extents)
   const tex = useRadialTexture()
   return (
     <>
@@ -267,22 +369,69 @@ function Scene({ small, reduced }: { small: boolean; reduced: boolean }) {
       <directionalLight position={STUDIO_FILL_POSITION} intensity={0.35} color={palette.linen200} />
       <IconMaterialsProvider>
         {cells.map((cell, i) => (
-          <CategoryIcon key={cell.id} cell={cell} index={i} reduced={reduced} tex={tex} />
+          <CategoryIcon key={cell.id} cell={cell} index={i} reduced={reduced} tex={tex} onExtents={onExtents} />
         ))}
       </IconMaterialsProvider>
+      {import.meta.env.DEV && <DebugHook />}
       <PostFX bloom grain={false} vignette={false} />
     </>
   )
+}
+
+/**
+ * Dev-only: window.__colIcons() → each icon's on-canvas bounding box from its
+ * real vertices (CSS px, canvas-relative), for layout checks in scripts.
+ */
+function DebugHook() {
+  const { scene, camera, size, invalidate } = useThree()
+  useEffect(() => {
+    const w = window as unknown as Record<string, unknown>
+    w.__colIcons = () => {
+      invalidate()
+      scene.updateMatrixWorld(true)
+      const out: Record<string, { top: number; bottom: number; left: number; right: number }> = {}
+      const v = new THREE.Vector3()
+      scene.traverse((o) => {
+        if (!o.userData.iconId) return
+        let top = Infinity
+        let bottom = -Infinity
+        let left = Infinity
+        let right = -Infinity
+        o.traverse((c) => {
+          const mesh = c as THREE.Mesh
+          if (!mesh.isMesh) return
+          const pos = mesh.geometry.attributes.position
+          for (let i = 0; i < pos.count; i++) {
+            v.fromBufferAttribute(pos, i).applyMatrix4(mesh.matrixWorld).project(camera)
+            const x = (v.x * 0.5 + 0.5) * size.width
+            const y = (-v.y * 0.5 + 0.5) * size.height
+            top = Math.min(top, y)
+            bottom = Math.max(bottom, y)
+            left = Math.min(left, x)
+            right = Math.max(right, x)
+          }
+        })
+        out[o.userData.iconId] = { top, bottom, left, right }
+      })
+      return out
+    }
+    return () => {
+      delete w.__colIcons
+    }
+  }, [scene, camera, size, invalidate])
+  return null
 }
 
 export default function CollectionsScene({
   active,
   small,
   reduced,
+  metrics = null,
 }: {
   active: boolean
   small: boolean
   reduced: boolean
+  metrics?: CardMetrics[] | null
 }) {
   return (
     <CanvasShell
@@ -293,7 +442,7 @@ export default function CollectionsScene({
       style={{ pointerEvents: 'none' }}
       aria-hidden
     >
-      <Scene small={small} reduced={reduced} />
+      <Scene small={small} reduced={reduced} metrics={metrics} />
     </CanvasShell>
   )
 }

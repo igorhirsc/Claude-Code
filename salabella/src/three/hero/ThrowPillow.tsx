@@ -8,8 +8,14 @@ import { pillowGeometry } from './geometry'
 import { useHeroStore, type PillowId } from './heroStore'
 import { PILLOW } from './sofaSpec'
 
-/** Collider: a rounded slab a little inside the puffed silhouette. */
-const COLLIDER = { hw: 0.18, hh: 0.18, hz: 0.026, r: 0.03 }
+/**
+ * Collider: a THIN rounded slab, ~2 cm either side of the pillow's midplane.
+ * The mesh is a lens (14 cm thick at the crown, 0 at the stitched rim); a
+ * slab as thick as the crown held a flat-lying pillow's rim ~5 cm off the
+ * seat. With the slab, the rim settles onto the cushion and the lower dome
+ * sinks into the soft seat/back, which is how a feather pillow really sits.
+ */
+const COLLIDER = { hw: 0.188, hh: 0.188, hz: 0.006, r: 0.014 }
 const MASS = 0.6 // kg — a feather-filled 45 cm pillow
 
 /**
@@ -61,9 +67,16 @@ export function ThrowPillow({ id, color, position, rotation, lite = false }: Thr
       v.set(I.x * sign() * TOSS.pitchRoll, I.y * sign() * TOSS.pitchRoll, I.z * sign() * TOSS.yaw).applyQuaternion(q)
       rb.applyTorqueImpulse({ x: v.x, y: v.y, z: v.z }, true)
     }
-    return useHeroStore.subscribe((s, prev) => {
+    const unsub = useHeroStore.subscribe((s, prev) => {
       if (s.tossNonce !== prev.tossNonce && (s.tossTarget === 'all' || s.tossTarget === id)) toss()
     })
+    // Dev-only handle for physics checks in scripts (e.g. pose a pillow flat).
+    const w = window as unknown as { __pillows?: Record<string, { current: RapierRigidBody | null }> }
+    if (import.meta.env.DEV) (w.__pillows ??= {})[id] = body
+    return () => {
+      unsub()
+      if (import.meta.env.DEV && w.__pillows) delete w.__pillows[id]
+    }
   }, [id])
 
   // Never leave the shared cursor stuck in its hover state.
