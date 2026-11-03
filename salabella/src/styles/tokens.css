@@ -1,0 +1,124 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/fraunces/standard.css';
+@import '@fontsource-variable/fraunces/standard-italic.css';
+@import '@fontsource-variable/inter';
+
+/*
+  SALABELLA design system.
+  Warm, editorial, gallery-lit furniture-brand palette.
+  Every color below is a token — sections must reference these,
+  never hardcode hex values, so the whole site restyles from one place.
+  src/three/common/materials.ts `palette` mirrors these for Three.js.
+*/
+@theme {
+  --font-display: 'Fraunces Variable', 'Fraunces', ui-serif, Georgia, serif;
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* Warm neutrals — the gallery walls */
+  --color-linen-50: #fbf8f3;
+  --color-linen-100: #f6f1e8;
+  --color-linen-200: #ede4d3;
+  --color-linen-300: #ddcfb4;
+
+  /* Ink — deep warm charcoal, never pure black */
+  --color-ink-900: #17140f;
+  --color-ink-800: #221e17;
+  --color-ink-700: #2e2820;
+  --color-ink-600: #4a4234;
+
+  /* Clay — the primary accent, terracotta wood-fired warmth */
+  --color-clay-400: #c98554;
+  --color-clay-500: #b5652f;
+  --color-clay-600: #954f24;
+
+  /* Brass — secondary accent for fine detail: rules, icons, hover states */
+  --color-brass-200: #e8d6ae;
+  --color-brass-300: #dcc38b;
+  --color-brass-400: #c9a15a;
+  --color-brass-500: #a9803e;
+
+  /* Moss — tertiary accent, used sparingly for contrast moments */
+  --color-moss-500: #4b5842;
+  --color-moss-600: #3a4433;
+
+  --color-cream: #f1ece1;
+
+  --ease-aaa: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-aaa-in: cubic-bezier(0.7, 0, 0.84, 0);
+}
+
+html {
+  background: var(--color-linen-100);
+  color: var(--color-ink-900);
+  scroll-behavior: auto;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-feature-settings: 'ss01' 1, 'cv01' 1;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-clay-500);
+  color: var(--color-linen-50);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+
+/* Thin brass rule, used as a section signature throughout the site */
+.rule-brass {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-brass-400) 20%,
+    var(--color-brass-400) 80%,
+    transparent
+  );
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Fine noise so flat color fields never look like plastic gradients */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-clay-500);
+  outline-offset: 3px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-linen-100);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-linen-300);
+  border-radius: 999px;
+}
