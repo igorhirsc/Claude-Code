@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 import { scrollTo } from '@/hooks/useLenis'
@@ -121,13 +121,40 @@ export function Header({ inert }: { inert?: boolean }) {
   // Light text over ink sections and the open menu; ink text over cream.
   const onDark = open || tone === 'dark'
 
+  // When the tone flips, colours snap: hover transitions are suspended for
+  // two frames so text never fades across a bar that already changed.
+  const headerRef = useRef<HTMLElement>(null)
+  const firstTone = useRef(true)
+  useLayoutEffect(() => {
+    if (firstTone.current) {
+      firstTone.current = false
+      return
+    }
+    const el = headerRef.current
+    if (!el) return
+    el.setAttribute('data-switching', '')
+    let r2 = 0
+    const r1 = requestAnimationFrame(() => {
+      r2 = requestAnimationFrame(() => el.removeAttribute('data-switching'))
+    })
+    return () => {
+      cancelAnimationFrame(r1)
+      cancelAnimationFrame(r2)
+      el.removeAttribute('data-switching')
+    }
+  }, [onDark, solid])
+
   return (
     <header
+      ref={headerRef}
       inert={inert}
       data-tone={open ? 'menu' : tone}
       data-solid={solid || undefined}
       className={clsx(
-        'fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-500 ease-aaa',
+        // No background transition: text colour and bar colour must switch in
+        // the same frame, or a lagging crossfade (e.g. while a 3D section is
+        // busy) briefly puts linen text on a linen bar.
+        'fixed inset-x-0 top-0 z-50 [&[data-switching]_*]:!transition-none',
         // Unscrolled: fully transparent, text tone follows the hero under it.
         // Scrolled: a translucent bar in the same family as the section below
         // (linen over cream, ink over ink), so it never turns grey.
@@ -144,7 +171,7 @@ export function Header({ inert }: { inert?: boolean }) {
         <NavLink
           to="/"
           className={clsx(
-            'font-display text-xl tracking-[0.14em] transition-colors duration-300',
+            'font-display text-xl tracking-[0.14em]',
             onDark ? 'text-linen-50' : 'text-ink-900',
           )}
           onClick={(e) => {

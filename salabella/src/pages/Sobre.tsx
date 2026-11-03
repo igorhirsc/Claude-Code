@@ -347,7 +347,7 @@ export default function Sobre() {
             </h2>
             <dl data-reveal className="mt-12 divide-y divide-linen-50/10 border-y border-linen-50/10">
               {MATERIALS.map((m) => (
-                <div key={m.name} className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 py-3.5">
+                <div key={m.name} className="flex flex-col gap-1 py-3.5">
                   <dt className="font-display text-lg text-linen-50">{m.name}</dt>
                   <dd className="text-sm text-linen-300">{m.use}</dd>
                 </div>
@@ -355,7 +355,7 @@ export default function Sobre() {
             </dl>
           </div>
 
-          <ol className="grid gap-px self-start overflow-hidden border border-linen-50/10 bg-linen-50/10 sm:grid-cols-2 md:col-span-7 lg:col-span-7 lg:col-start-6">
+          <ol className="grid gap-px self-start overflow-hidden border border-linen-50/10 bg-linen-50/10 sm:max-md:grid-cols-2 md:col-span-7 lg:grid-cols-2 lg:col-span-7 lg:col-start-6">
             {PROCESS.map((step, i) => (
               <li key={step.title} data-reveal className="flex flex-col bg-ink-900 p-7 md:p-9">
                 <span aria-hidden className="font-display text-sm text-brass-300 tabular-nums">
