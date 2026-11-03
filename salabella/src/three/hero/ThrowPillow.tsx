@@ -6,9 +6,8 @@ import { fabricMaterial } from '@/three/common/materials'
 import { setCanvasCursorHover } from '@/components/ui/Cursor'
 import { pillowGeometry } from './geometry'
 import { useHeroStore, type PillowId } from './heroStore'
+import { PILLOW } from './sofaSpec'
 
-/** Pillow half-extents (m): a 44 cm square, ~14 cm thick at the crown. */
-export const PILLOW = { hw: 0.22, hh: 0.22, hz: 0.07 }
 /** Collider: a rounded slab a little inside the puffed silhouette. */
 const COLLIDER = { hw: 0.18, hh: 0.18, hz: 0.026, r: 0.03 }
 const MASS = 0.6 // kg — a feather-filled 45 cm pillow
@@ -17,10 +16,12 @@ const MASS = 0.6 // kg — a feather-filled 45 cm pillow
  * Toss targets, as velocity changes. The impulse is derived from the body's
  * real mass and inertia so the motion is the same whatever the collider.
  * Up 1.3 m/s ≈ an 8–9 cm hop; 0.55 m/s sideways ≈ 15 cm of drift in the air.
- * Pitch/roll stay low so the thin pillow wobbles but never flips on edge;
- * the yaw (spin about its thin axis) carries the playfulness.
+ * A slight drift toward the backrest (0.12 m/s) lets a leaning pillow land
+ * back against it rather than always flopping forward. Pitch/roll stay low
+ * so the thin pillow wobbles but never flips on edge; the yaw (spin about
+ * its thin axis) carries the playfulness.
  */
-const TOSS = { up: 1.3, lateral: 0.55, pitchRoll: 0.75, yaw: 2.2 }
+const TOSS = { up: 1.3, lateral: 0.55, back: 0.12, pitchRoll: 0.75, yaw: 2.2 }
 
 const sign = () => (Math.random() < 0.5 ? -1 : 1)
 const q = new THREE.Quaternion()
@@ -50,7 +51,7 @@ export function ThrowPillow({ id, color, position, rotation, lite = false }: Thr
       const rb = body.current
       if (!rb) return
       const m = rb.mass()
-      rb.applyImpulse({ x: sign() * TOSS.lateral * m, y: TOSS.up * m, z: 0 }, true)
+      rb.applyImpulse({ x: sign() * TOSS.lateral * m, y: TOSS.up * m, z: -TOSS.back * m }, true)
 
       // Angular impulse L = I·Δω in the body's principal frame (the collider's
       // own axes for a centred slab), rotated into world space.

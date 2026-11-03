@@ -134,7 +134,7 @@ export default function Hero() {
           lets pointer drags through to the sofa except on real controls. */}
       <div
         ref={contentRef}
-        className="relative z-10 order-1 mx-auto w-full max-w-[1440px] px-6 pt-28 pb-2 md:px-10 md:pt-32 md:landscape:pointer-events-none md:landscape:flex md:landscape:flex-1 md:landscape:items-center md:landscape:pt-24 md:landscape:pb-24"
+        className="relative z-10 order-1 mx-auto w-full max-w-[1440px] px-6 pt-24 md:px-10 md:pt-28 md:landscape:pointer-events-none md:landscape:flex md:landscape:flex-1 md:landscape:items-center md:landscape:pt-24 md:landscape:pb-24"
       >
         <div className="max-w-[40rem] md:landscape:w-[46%] md:landscape:max-w-none">
           <p data-hero="eyebrow" className="eyebrow flex items-center gap-3 text-clay-600">
@@ -144,7 +144,7 @@ export default function Hero() {
 
           <h1
             id="hero-titulo"
-            className="mt-5 font-display text-[2.6rem] leading-[1.02] font-light tracking-[-0.02em] text-ink-900 min-[400px]:text-[2.85rem] md:mt-7 md:text-[4.25rem] md:landscape:text-[clamp(2.75rem,5.2vw,5rem)]"
+            className="mt-4 font-display text-[2.6rem] leading-[1.02] font-light tracking-[-0.02em] text-ink-900 min-[400px]:text-[2.85rem] md:mt-7 md:text-[4.25rem] md:landscape:text-[clamp(2.75rem,5.2vw,5rem)]"
           >
             {HEADLINE.map((line, li) => (
               <span key={li} className="block whitespace-nowrap">
@@ -171,12 +171,12 @@ export default function Hero() {
             ))}
           </h1>
 
-          <p data-hero="fade" className="mt-6 max-w-[46ch] text-base text-pretty leading-relaxed text-ink-600 md:mt-8 md:text-lg">
+          <p data-hero="fade" className="mt-5 max-w-[46ch] text-[0.9375rem] leading-relaxed text-pretty text-ink-600 md:mt-8 md:text-lg">
             Desenhamos em São Paulo; artesãos parceiros constroem à mão, em madeira maciça e fibras naturais. Móveis
             feitos sob encomenda para atravessar gerações — e para serem só seus.
           </p>
 
-          <div data-hero="fade" className="relative mt-7 md:mt-9">
+          <div data-hero="fade" className="relative mt-5 md:mt-9">
             <button
               type="button"
               onClick={onShake}
@@ -203,18 +203,21 @@ export default function Hero() {
       <div
         role="img"
         aria-label="Sofá de dois lugares SALABELLA em 3D: linho cru, base em imbuia com pés de latão e duas almofadas, terracota e musgo."
-        className="relative order-2 min-h-[300px] flex-1 md:min-h-[420px] md:landscape:absolute md:landscape:inset-0 md:landscape:min-h-0"
+        className="relative order-2 min-h-[300px] flex-1 md:min-h-[340px] md:landscape:absolute md:landscape:inset-0 md:landscape:min-h-0"
       >
-        {everInView && (
-          <Suspense fallback={null}>
-            <HeroScene active={inView} layout={layout} reduced={reduced} lite={lite} />
-          </Suspense>
-        )}
+        {/* absolute: R3F sizes to its parent, and a flex item's height is not definite */}
+        <div className="absolute inset-0">
+          {everInView && (
+            <Suspense fallback={null}>
+              <HeroScene active={inView} layout={layout} reduced={reduced} lite={lite} />
+            </Suspense>
+          )}
+        </div>
       </div>
 
       <div
         data-hero="footer"
-        className="relative z-10 order-3 mx-auto flex w-full max-w-[1440px] items-end justify-between gap-6 px-6 pt-2 pb-6 md:px-10 md:pb-8 md:landscape:pointer-events-none md:landscape:absolute md:landscape:inset-x-0 md:landscape:bottom-0"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-[1440px] items-center justify-between gap-6 px-6 pb-4 md:px-10 md:pb-8"
       >
         <a
           href="#colecoes"
@@ -226,7 +229,7 @@ export default function Hero() {
           </span>
           <span className="eyebrow">Ver coleções</span>
         </a>
-        <p className="hidden text-right text-xs leading-relaxed text-ink-600 sm:block">
+        <p className="hidden text-right text-xs leading-relaxed text-ink-600 md:landscape:block">
           <span className="font-display text-sm text-ink-900 italic">Sofá Lapa</span>
           <span className="mx-2 text-brass-500" aria-hidden>
             ·

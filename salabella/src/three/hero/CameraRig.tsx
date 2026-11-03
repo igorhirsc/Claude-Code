@@ -75,15 +75,16 @@ export function CameraRig({ layout, reduced, calm }: CameraRigProps) {
     let fracH: number
     if (layout === 'side') {
       const C = Math.min(W, 1440)
-      cx = (W - C) / 2 + C * 0.705
+      cx = (W - C) / 2 + C * 0.7
       cy = H * 0.55
-      pxW = C * 0.42
+      pxW = C * 0.45
       fracH = 0.5
     } else {
+      // The band's bottom ~64px carries the scroll cue: sit the sofa above it.
       cx = W / 2
-      cy = H * 0.5
-      pxW = W * 0.84
-      fracH = 0.78
+      cy = H * 0.43
+      pxW = W * 0.82
+      fracH = 0.62
     }
     const dW = (FRAME_W * H) / (2 * t * pxW)
     const dH = FRAME_H / (2 * t * fracH)
@@ -122,11 +123,12 @@ export function CameraRig({ layout, reduced, calm }: CameraRigProps) {
       st.current.px = THREE.MathUtils.clamp(((e.clientX - r.left) / r.width) * 2 - 1, -1, 1)
       st.current.py = THREE.MathUtils.clamp(((e.clientY - r.top) / r.height) * 2 - 1, -1, 1)
     }
+    const s = st.current
     window.addEventListener('pointermove', onMove, { passive: true })
     return () => {
       window.removeEventListener('pointermove', onMove)
-      st.current.px = 0
-      st.current.py = 0
+      s.px = 0
+      s.py = 0
     }
   }, [motion, eventsEl])
 

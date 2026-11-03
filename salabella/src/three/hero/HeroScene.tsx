@@ -6,8 +6,9 @@ import { CanvasShell } from '@/three/common/CanvasShell'
 import { StudioLighting, STUDIO_KEY_POSITION } from '@/three/common/Lighting'
 import { PostFX } from '@/three/common/PostFX'
 import { palette } from '@/three/common/materials'
-import { ARM_INNER, ARM_X, HeroSofa, SEAT_TOP, SOFA, backFrontZ, backTransform } from './HeroSofa'
-import { PILLOW, ThrowPillow } from './ThrowPillow'
+import { HeroSofa } from './HeroSofa'
+import { ThrowPillow } from './ThrowPillow'
+import { ARM_INNER, ARM_X, PILLOW, SEAT_TOP, SOFA, backFrontZ, backTransform } from './sofaSpec'
 import { CameraRig, type HeroLayout } from './CameraRig'
 import type { PillowId } from './heroStore'
 
@@ -182,7 +183,7 @@ export default function HeroScene({ active, layout, reduced, lite }: HeroScenePr
       />
 
       <CameraRig layout={layout} reduced={reduced} calm={lite} />
-      <PostFX bloom={false} vignette={false} grain={!lite} ao={!lite} />
+      <PostFX bloom={false} vignette={false} grain={!lite && !reduced} ao={!lite} />
     </CanvasShell>
   )
 }
