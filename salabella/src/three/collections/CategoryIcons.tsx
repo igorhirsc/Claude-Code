@@ -143,7 +143,7 @@ function buildMaterials() {
     }),
     // Tone-mapped on purpose: warm glow without clipping to white.
     bulb: new THREE.MeshStandardMaterial({
-      color: palette.brass200,
+      color: palette.brass300,
       emissive: palette.brass400,
       emissiveIntensity: 2.0,
       roughness: 0.4,

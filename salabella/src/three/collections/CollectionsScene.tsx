@@ -205,9 +205,9 @@ function CategoryIcon({ cell, index, reduced, tex }: { cell: Cell; index: number
       const mesh = contactRefs.current[i]
       if (!mesh) return
       mesh.position.set((x * cY + z * sY) * S, sP * (x * sY - z * cY) * S, -0.5)
-      mesh.scale.set(r * 1.7 * S, r * 1.7 * S * sP + 1.5, 1)
+      mesh.scale.set(r * 1.55 * S, r * 1.55 * S * sP + 1.5, 1)
     })
-    contactMat.opacity = 0.95 * e
+    contactMat.opacity = 0.85 * e
 
     glowMat.current.opacity = (0.45 + 0.3 * k.hot) * Math.min(1, e * 1.4)
   })

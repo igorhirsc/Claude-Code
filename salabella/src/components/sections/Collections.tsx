@@ -123,9 +123,9 @@ export default function Collections() {
             <h2
               id="colecoes-titulo"
               data-reveal
-              className="mt-5 font-display text-[2.5rem] leading-[1.04] font-light tracking-[-0.015em] text-balance text-linen-50 md:text-6xl lg:text-7xl"
+              className="mt-5 font-display text-[2.5rem] leading-[1.04] font-light tracking-[-0.015em] text-balance text-linen-50 md:text-5xl lg:text-6xl xl:text-7xl"
             >
-              Uma peça autoral para <em className="font-normal text-brass-300 italic">cada canto</em> da casa.
+              Uma peça autoral para <em className="font-normal whitespace-nowrap text-brass-300 italic">cada canto</em> da casa.
             </h2>
           </div>
           <div className="md:col-span-5 md:col-start-8 lg:col-span-4 lg:col-start-9">
