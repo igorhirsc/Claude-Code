@@ -1,4 +1,4 @@
-import { palette } from '@/three/common/materials'
+import { palette } from '@/data/palette'
 import type { PaletteKey } from '@/three/configurator/swatches'
 
 /**

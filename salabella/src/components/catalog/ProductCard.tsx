@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import type { Product } from '@/data/products'
-import { CATEGORIES } from '@/three/collections/CategoryIcons'
+import { CATEGORIES } from '@/data/categories'
 import { tokenVar } from '@/three/configurator/swatches'
 import { ArrowUpRightIcon, CheckIcon } from '@/components/ui/icons'
 import { ProductPhoto } from './ProductPhoto'

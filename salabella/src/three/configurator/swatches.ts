@@ -1,4 +1,4 @@
-import type { palette } from '@/three/common/materials'
+import type { palette } from '@/data/palette'
 
 /** A key of the shared 3D `palette` (mirrors the CSS tokens one-to-one). */
 export type PaletteKey = keyof typeof palette

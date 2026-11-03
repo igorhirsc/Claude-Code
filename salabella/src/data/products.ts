@@ -1,4 +1,4 @@
-import type { CategoryId } from '@/three/collections/CategoryIcons'
+import type { CategoryId } from '@/data/categories'
 import type { PaletteKey } from '@/three/configurator/swatches'
 import { SPEC_SUMMARY } from '@/three/configurator/dimensions'
 

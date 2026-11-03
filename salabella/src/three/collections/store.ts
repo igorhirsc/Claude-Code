@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { CategoryId } from './CategoryIcons'
+import type { CategoryId } from '@/data/categories'
 
 /**
  * Bridge between the DOM card grid and the shared WebGL scene.

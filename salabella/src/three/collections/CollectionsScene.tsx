@@ -6,8 +6,8 @@ import { CanvasShell } from '@/three/common/CanvasShell'
 import { StudioLighting, STUDIO_KEY_POSITION, STUDIO_FILL_POSITION } from '@/three/common/Lighting'
 import { PostFX } from '@/three/common/PostFX'
 import { palette } from '@/three/common/materials'
+import { CATEGORIES, type CategoryId } from '@/data/categories'
 import {
-  CATEGORIES,
   CATEGORY_ICONS,
   ICON_SCALE,
   SHADOW_Y,
@@ -15,7 +15,6 @@ import {
   SHADOW_CONTACTS,
   BASE_YAW,
   IconMaterialsProvider,
-  type CategoryId,
 } from './CategoryIcons'
 import { useCollectionsStore, activeCategory } from './store'
 

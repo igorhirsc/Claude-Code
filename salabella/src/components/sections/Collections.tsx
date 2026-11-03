@@ -2,7 +2,7 @@ import { lazy, Suspense, useLayoutEffect, useRef, type PointerEvent } from 'reac
 import { Link } from 'react-router-dom'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { CATEGORIES } from '@/three/collections/CategoryIcons'
+import { CATEGORIES } from '@/data/categories'
 import { useCollectionsStore } from '@/three/collections/store'
 import { useIsSmallViewport, useReducedMotion, useSectionVisibility } from '@/hooks/useMediaFlags'
 

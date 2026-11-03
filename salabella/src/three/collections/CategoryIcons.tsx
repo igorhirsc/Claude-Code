@@ -10,26 +10,10 @@ import {
   ceramicMaterial,
 } from '@/three/common/materials'
 
-/* ------------------------------------------------------------------------ */
-/* Catalogue categories — imported by the /colecoes page to filter products. */
-/* ------------------------------------------------------------------------ */
-
-export type CategoryId = 'sofas' | 'poltronas' | 'mesas' | 'estantes' | 'iluminacao' | 'decoracao'
-
-export type Category = {
-  id: CategoryId
-  label: string
-  description: string
-}
-
-export const CATEGORIES: readonly Category[] = [
-  { id: 'sofas', label: 'Sofás', description: 'Linhas baixas, assento profundo e estrutura em madeira maciça.' },
-  { id: 'poltronas', label: 'Poltronas', description: 'Volumes macios em bouclé e linho, feitos para ler devagar.' },
-  { id: 'mesas', label: 'Mesas', description: 'Tampos em freijó e encaixes de marcenaria deixados à vista.' },
-  { id: 'estantes', label: 'Estantes', description: 'Marcenaria sob medida para livros, cerâmicas e memórias.' },
-  { id: 'iluminacao', label: 'Iluminação', description: 'Latão escovado e cúpulas laqueadas para uma luz baixa e quente.' },
-  { id: 'decoracao', label: 'Decoração', description: 'Cerâmica de torno e capim dourado do Jalapão, peça a peça.' },
-] as const
+// The category taxonomy lives in a three-free module so label-only
+// importers don't drag three.js into the main bundle.
+import type { CategoryId } from '@/data/categories'
+export type { CategoryId }
 
 /* ------------------------------------------------------------------------ */
 /* Authoring constants                                                       */

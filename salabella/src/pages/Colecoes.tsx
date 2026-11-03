@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { useSearchParams } from 'react-router-dom'
 import clsx from 'clsx'
 import gsap from 'gsap'
-import { CATEGORIES, type CategoryId } from '@/three/collections/CategoryIcons'
+import { CATEGORIES, type CategoryId } from '@/data/categories'
 import { PRODUCTS, productById } from '@/data/products'
 import { useReducedMotion } from '@/hooks/useMediaFlags'
 import { ProductCard } from '@/components/catalog/ProductCard'

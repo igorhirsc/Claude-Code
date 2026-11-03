@@ -162,22 +162,6 @@ function Rig({
 }
 
 /**
- * @react-three/postprocessing sizes a new composer from a module-level
- * vector that still holds the LAST canvas it touched — with several canvases
- * on the home page this one would inherit the Collections canvas size
- * (1360×1117 inside a 765×611 card). Re-assert our own size before the
- * composer's frame; it then picks the correct size up on its next check.
- */
-function SizeGuard() {
-  const tmp = useMemo(() => new THREE.Vector2(), [])
-  useFrame(({ gl, size }) => {
-    gl.getSize(tmp)
-    if (Math.abs(tmp.x - size.width) > 0.5 || Math.abs(tmp.y - size.height) > 0.5) gl.setSize(size.width, size.height)
-  })
-  return null
-}
-
-/**
  * Dev-only hook for scripts/arm-seam-check.mjs: fixed camera views and a flat
  * "mask" render (upholstery / wood+brass / background as three flat colours)
  * so seams can be checked by pixel, plus the body SDF for embed checks.
@@ -288,7 +272,6 @@ function Scene({
       {callouts && labels.map((l) => <DimensionCallout key={l.def.id} def={l.def} label={l.label} value={l.value} compact={compact} />)}
       <Rig reduced={reduced} distance={distance} apiRef={apiRef} />
       {import.meta.env.DEV && <DebugHook />}
-      <SizeGuard />
       <PostFX bloom={false} />
     </>
   )
