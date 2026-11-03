@@ -102,7 +102,7 @@ void main() {
   float streak = clamp(0.5 + 0.62 * fbm3(vec3(dir * 2.6, d * 48.0)), 0.0, 1.0);
   float pores = smoothstep(0.62, 0.95, snoise(vec3(dir * 46.0, d * 210.0)));
 
-  vec3 base = mix(uEarly, uLate, late * 0.74);
+  vec3 base = mix(uEarly, uLate, late * 0.64);
   base *= mix(0.78, 1.16, streak);
   base *= 0.9 + 0.18 * (0.5 + 0.5 * snoise(P * 0.7 + 3.0));   // board-scale tone drift
   base = mix(base, uDeep, pores * 0.22 + late * late * 0.1);
@@ -191,7 +191,7 @@ ${simplexNoise3D}
 
 void main() {
   float r = length(vWorldPos.xz - uCenter);
-  float pool = 1.0 - smoothstep(0.4, 4.2, r);
+  float pool = 1.0 - smoothstep(0.3, 6.5, r);
   pool *= pool;
   // faint stone/linen tooth so the plinth never reads as a flat gradient
   float tooth = snoise(vec3(vWorldPos.xz * 9.0, 1.0)) * 0.5 + snoise(vec3(vWorldPos.xz * 31.0, 2.0)) * 0.25;
@@ -208,7 +208,7 @@ export function createPlinthMaterial() {
     fragmentShader: groundFragment,
     uniforms: {
       uPool: { value: c(palette.ink600) },
-      uEdge: { value: c(palette.ink800) },
+      uEdge: { value: c(palette.ink800).lerp(c(palette.ink700), 0.6) },
       uCenter: { value: new THREE.Vector2(0.35, 0.25) },
     },
   })

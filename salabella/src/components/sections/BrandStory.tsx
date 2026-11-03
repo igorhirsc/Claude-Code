@@ -66,7 +66,7 @@ type VignetteFrameProps = {
  * only while visible (frameloop "demand" otherwise).
  */
 export function VignetteFrame({ caption, detail, className, aspect = 'aspect-[5/4]' }: VignetteFrameProps) {
-  const { ref, everInView, inView } = useSectionVisibility<HTMLElement>('300px')
+  const { ref, everInView, inView } = useSectionVisibility<HTMLElement>('900px')
   const reduced = useReducedMotion()
   const [ready, setReady] = useState(false)
   const onReady = useCallback(() => setReady(true), [])

@@ -23,19 +23,22 @@ const BASE_YAW = 0.6
 export const SWAY_AMPLITUDE = THREE.MathUtils.degToRad(18)
 export const SWAY_PERIOD = 50
 
+/** Ring's outer radius plus breathing room, as a fraction of half-frame. */
+const RING_FILL = 1 / 1.5
+
 function Rig() {
-  const camera = useThree((s) => s.camera)
+  const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera
+  const aspect = useThree((s) => s.size.width / Math.max(1, s.size.height))
   const invalidate = useThree((s) => s.invalidate)
   useEffect(() => {
-    camera.position.set(
-      0,
-      TARGET.y + Math.sin(CAMERA_ELEVATION) * CAMERA_DISTANCE,
-      Math.cos(CAMERA_ELEVATION) * CAMERA_DISTANCE,
-    )
+    // Pull back in narrow/portrait frames so the ring never clips sideways.
+    const halfW = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * aspect
+    const distance = Math.max(CAMERA_DISTANCE, (RING_MAJOR + RING_MINOR) / RING_FILL / halfW)
+    camera.position.set(0, TARGET.y + Math.sin(CAMERA_ELEVATION) * distance, Math.cos(CAMERA_ELEVATION) * distance)
     camera.lookAt(TARGET)
     camera.updateProjectionMatrix()
     invalidate()
-  }, [camera, invalidate])
+  }, [camera, aspect, invalidate])
   return null
 }
 
@@ -83,7 +86,7 @@ function ReadySignal({ onReady }: { onReady?: () => void }) {
   useFrame(() => {
     if (done.current) return
     frames.current += 1
-    if (frames.current < 3) {
+    if (frames.current < 2) {
       invalidate()
       return
     }
@@ -109,6 +112,7 @@ export default function WoodVignette({ active, reduced = false, onReady }: WoodV
     <CanvasShell
       frameloop={active && !reduced ? 'always' : 'demand'}
       shadows={false}
+      dpr={[1, 1.5]}
       camera={{ fov: 30, position: [0, 2.3, 4.3], near: 0.1, far: 60 }}
       aria-hidden
     >
@@ -128,7 +132,7 @@ export default function WoodVignette({ active, reduced = false, onReady }: WoodV
         frames={1}
       />
       <ReadySignal onReady={onReady} />
-      <PostFX bloom={false} grain={!reduced} />
+      <PostFX bloom={false} vignette={false} grain={!reduced} />
     </CanvasShell>
   )
 }
