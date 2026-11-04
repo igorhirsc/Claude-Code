@@ -166,7 +166,7 @@ export default function BrandStory() {
             </p>
             <h2
               id="atelier-titulo"
-              className="mt-6 font-display text-[2.375rem] leading-[1.04] font-light tracking-[-0.02em] text-linen-50 md:text-5xl xl:text-6xl"
+              className="mt-6 font-display text-[2.375rem] leading-[1.04] font-light tracking-[-0.02em] text-linen-50 md:text-4xl lg:text-5xl xl:text-6xl"
             >
               <span className="block overflow-hidden pb-[0.08em]">
                 <span data-reveal-line className="block">

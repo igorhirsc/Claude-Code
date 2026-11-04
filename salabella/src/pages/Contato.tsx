@@ -333,7 +333,7 @@ export default function Contato() {
               </p>
               <h1
                 id="contato-hero-titulo"
-                className="mt-8 font-display text-[2.875rem] leading-[1] font-light tracking-[-0.025em] md:text-7xl xl:text-[5.5rem]"
+                className="mt-8 font-display text-[2.375rem] leading-[1] font-light tracking-[-0.025em] sm:text-[2.875rem] md:text-7xl xl:text-[5.5rem]"
               >
                 <span className="block overflow-hidden pb-[0.1em]">
                   <span data-hero-line className="block">

@@ -251,7 +251,7 @@ export default function Sobre() {
             <h2
               id="historia-titulo"
               data-reveal
-              className="mt-6 font-display text-[2.25rem] leading-[1.06] font-light tracking-[-0.02em] text-balance text-linen-50 md:text-4xl lg:text-5xl"
+              className="mt-6 font-display text-[2.25rem] leading-[1.06] font-light tracking-[-0.02em] text-balance text-linen-50 md:text-4xl xl:text-5xl"
             >
               Começou com um torno, uma bancada e <em className="whitespace-nowrap text-brass-300 italic">alguma teimosia.</em>
             </h2>
