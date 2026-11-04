@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import clsx from 'clsx'
+import { useLocation } from 'react-router-dom'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import {
@@ -213,6 +214,13 @@ export default function Contato() {
   const timerRef = useRef<number | undefined>(undefined)
 
   const [values, setValues] = useState<Values>(() => ({ ...EMPTY, assunto: presetSubject() }))
+  // A footer link like ?assunto=projeto can arrive while this page is already
+  // mounted (query-only navigation doesn't remount <main>), so re-apply it.
+  const { search } = useLocation()
+  useEffect(() => {
+    const preset = presetSubject()
+    if (preset) setValues((v) => (v.assunto === preset ? v : { ...v, assunto: preset }))
+  }, [search])
   const [errors, setErrors] = useState<Errors>({})
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({})
   const [status, setStatus] = useState<Status>('idle')
@@ -334,7 +342,7 @@ export default function Contato() {
                 </span>
                 <span className="block overflow-hidden pb-[0.1em]">
                   <span data-hero-line className="block">
-                    com <em className="text-brass-200 italic">uma conversa.</em>
+                    com <em className="whitespace-nowrap text-brass-200 italic">uma conversa.</em>
                   </span>
                 </span>
               </h1>

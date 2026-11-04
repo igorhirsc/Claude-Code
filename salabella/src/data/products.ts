@@ -89,7 +89,7 @@ export const PRODUCTS: readonly Product[] = [
     id: 'poltrona-aurora',
     name: 'Poltrona Aurora',
     category: 'poltronas',
-    summary: 'Braços que abraçam, encosto na medida da lombar. Escolha o tecido em 3D.',
+    summary: 'Braços que abraçam, encosto na medida da lombar. Escolha o tecido ao vivo.',
     description:
       'Braços largos, um encosto inclinado na medida da lombar e o assento solto, de pluma sobre espuma de alta resiliência. Estofada à mão em São Paulo, chega no tecido que você escolher — e envelhece bonita com ele.',
     materials: ['Cinco tecidos à escolha', 'Pés torneados em freijó maciço', 'Ponteiras e anéis de latão'],

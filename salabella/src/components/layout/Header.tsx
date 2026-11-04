@@ -68,6 +68,33 @@ export function Header({ inert }: { inert?: boolean }) {
     }
   }, [location.pathname])
 
+  // Re-measure synchronously after a route change, before the browser paints:
+  // the passive effect above runs after first paint, which left two frames of
+  // the previous page's tone (linen text over a linen hero, ~1:1). ScrollToTop
+  // is mounted before Header, so its layout effect has already reset scroll.
+  useLayoutEffect(() => {
+    setSolid(window.scrollY > 40)
+    setTone(toneUnderHeader())
+  }, [location.pathname, location.hash])
+
+  // Layout can shift without a scroll (lazy 3D mounts, reveals changing
+  // heights), which would leave the tone stale until the next scroll.
+  useEffect(() => {
+    let raf = 0
+    const ro = new ResizeObserver(() => {
+      if (!raf)
+        raf = requestAnimationFrame(() => {
+          raf = 0
+          setTone(toneUnderHeader())
+        })
+    })
+    ro.observe(document.body)
+    return () => {
+      cancelAnimationFrame(raf)
+      ro.disconnect()
+    }
+  }, [])
+
   // Any navigation closes the menu (adjust-state-during-render pattern).
   const routeKey = location.pathname + location.search + location.hash
   const [lastRoute, setLastRoute] = useState(routeKey)

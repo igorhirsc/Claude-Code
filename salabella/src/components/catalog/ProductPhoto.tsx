@@ -500,7 +500,7 @@ const SHAPES: Record<Shape, Draw> = {
         ].map(([x, y]) => (
           <path key={x} d={`M${x - 8} ${y - 3} L${x + 8} ${y - 1} L${x + 4} ${y + 3} L${x + 12} ${y + 5} L${x - 4} ${y + 3} L${x} ${y - 1} Z`} style={{ fill: s(body, 42) }} opacity="0.85" />
         ))}
-        <path d={`M44 ${236 + DY / 2 + 1} L${356 + DX / 2} ${236 + DY / 2 + 1}`} style={{ stroke: s(body, 26) }} strokeOpacity="0.35" strokeWidth="0.7" />
+        <path d={`M${40 + DX / 2 + 4} ${236 + DY / 2 + 1} L${356 + DX / 2} ${236 + DY / 2 + 1}`} style={{ stroke: s(body, 26) }} strokeOpacity="0.35" strokeWidth="0.7" />
         {/* end grain on the visible table end */}
         <path d={`M358 239 L${358 + DX} ${236 + DY} M358 246 L${358 + DX} ${243 + DY} M358 251 L${358 + DX} ${248 + DY}`} style={{ stroke: s(body, 50) }} strokeOpacity="0.4" strokeWidth="0.6" />
       </>

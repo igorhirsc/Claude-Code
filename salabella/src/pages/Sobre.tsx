@@ -69,7 +69,7 @@ const MILESTONES = [
   {
     year: '2012',
     title: 'A primeira bancada',
-    body: 'Cecília Salabella e Benedito Nunes abrem uma oficina de 40 m² nos fundos de um sobrado no Bexiga. A primeira peça é a banqueta Lua, em freijó.',
+    body: 'Cecília Salabella e Benedito Nunes abrem uma oficina de 40 m² nos fundos de um sobrado no Bexiga. A primeira peça é a banqueta Lua, em freijó.',
   },
   {
     year: '2015',
@@ -190,7 +190,7 @@ export default function Sobre() {
             </p>
             <h1
               id="sobre-titulo"
-              className="mt-8 font-display text-[2.625rem] leading-[1.02] font-light tracking-[-0.025em] md:text-6xl xl:text-[5.25rem]"
+              className="mt-8 font-display text-[2.625rem] leading-[1.02] font-light tracking-[-0.025em] md:text-5xl lg:text-6xl xl:text-[5.25rem]"
             >
               <span className="block overflow-hidden pb-[0.08em]">
                 <span data-hero-line className="block">
@@ -251,16 +251,16 @@ export default function Sobre() {
             <h2
               id="historia-titulo"
               data-reveal
-              className="mt-6 font-display text-[2.25rem] leading-[1.06] font-light tracking-[-0.02em] text-balance text-linen-50 md:text-5xl"
+              className="mt-6 font-display text-[2.25rem] leading-[1.06] font-light tracking-[-0.02em] text-balance text-linen-50 md:text-4xl lg:text-5xl"
             >
-              Começou com um torno, uma bancada e <em className="text-brass-300 italic">alguma teimosia.</em>
+              Começou com um torno, uma bancada e <em className="whitespace-nowrap text-brass-300 italic">alguma teimosia.</em>
             </h2>
           </div>
 
           <div className="md:col-span-7 lg:col-span-7 lg:col-start-6">
             <div className="max-w-[58ch] space-y-6 text-base leading-relaxed text-linen-300 md:text-[1.0625rem]">
               <p data-reveal>
-                Em 2012, a arquiteta Cecília Salabella e o marceneiro Benedito Nunes alugaram 40 m² nos fundos de um
+                Em 2012, a arquiteta Cecília Salabella e o marceneiro Benedito Nunes alugaram 40 m² nos fundos de um
                 sobrado no Bexiga. Ela trazia os desenhos; ele, trinta anos de bancada e um torno herdado do pai. A
                 primeira peça foi uma banqueta de freijó — fizeram onze protótipos antes de acertar a altura.
               </p>
@@ -382,9 +382,9 @@ export default function Sobre() {
               <h2
                 id="linha-titulo"
                 data-reveal
-                className="mt-6 font-display text-[2.25rem] leading-[1.06] font-light tracking-[-0.02em] text-balance md:text-5xl"
+                className="mt-6 font-display text-[2.25rem] leading-[1.06] font-light tracking-[-0.02em] text-balance md:text-4xl lg:text-5xl"
               >
-                Catorze anos, uma bancada de cada vez.
+                Catorze anos, uma bancada de cada vez.
               </h2>
             </div>
           </div>

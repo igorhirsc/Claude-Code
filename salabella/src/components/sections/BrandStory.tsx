@@ -14,20 +14,20 @@ const WoodVignette = lazy(() => import('@/three/story/WoodVignette'))
 
 const PROCESS = [
   {
-    title: 'Design',
-    body: 'Cada peça começa no estúdio, em croqui e depois em escala real. Ajustamos proporção, altura de assento e caimento até que o conforto e o desenho digam a mesma coisa.',
+    title: 'Desenho',
+    body: 'Cada peça começa a lápis, em escala real, e ganha um protótipo em pinus. Ajustamos proporção, altura de assento e caimento até que conforto e desenho digam a mesma coisa.',
   },
   {
-    title: 'Seleção de materiais',
-    body: 'Freijó, cumaru e carvalho de manejo certificado, secos ao ar por meses; tecidos naturais de tecelagens brasileiras. A escolha é feita tábua por tábua, rolo por rolo.',
+    title: 'Madeira',
+    body: 'Freijó e imbuia de manejo certificado ou de reaproveitamento, secos ao ar e escolhidos tábua a tábua pelo desenho do veio; tecidos naturais de tecelagens brasileiras.',
   },
   {
-    title: 'Manufatura',
+    title: 'Bancada',
     body: 'Nos ateliês parceiros, a madeira é cortada, torneada e encaixada à mão, com espiga e cavilha. Os estofados são montados sobre cintas elásticas, sem atalhos.',
   },
   {
-    title: 'Acabamento',
-    body: 'Lixamento progressivo, óleo natural e cera de abelha — ou laca fosca, quando o projeto pede. Cada peça é revisada e assinada antes de seguir para a sua casa.',
+    title: 'Assinatura',
+    body: 'Óleo natural e cera de carnaúba — ou laca fosca, quando o projeto pede. Cada peça é conferida e leva gravado por baixo o nome de quem a fez.',
   },
 ] as const
 
@@ -166,7 +166,7 @@ export default function BrandStory() {
             </p>
             <h2
               id="atelier-titulo"
-              className="mt-6 font-display text-[2.375rem] leading-[1.04] font-light tracking-[-0.02em] text-linen-50 md:text-5xl lg:text-6xl"
+              className="mt-6 font-display text-[2.375rem] leading-[1.04] font-light tracking-[-0.02em] text-linen-50 md:text-5xl xl:text-6xl"
             >
               <span className="block overflow-hidden pb-[0.08em]">
                 <span data-reveal-line className="block">
@@ -175,7 +175,7 @@ export default function BrandStory() {
               </span>
               <span className="block overflow-hidden pb-[0.1em]">
                 <span data-reveal-line className="block">
-                  carregam <em className="font-normal text-brass-300 italic">o gesto</em>
+                  carregam <em className="font-normal whitespace-nowrap text-brass-300 italic">o gesto</em>
                 </span>
               </span>
               <span className="block overflow-hidden pb-[0.1em]">
