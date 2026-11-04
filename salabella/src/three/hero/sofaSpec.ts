@@ -13,7 +13,7 @@ export const SOFA = {
   trayH: 0.07,
   /** Top of the wooden tray; all upholstery sits on it. */
   base: 0.22,
-  arm: { w: 0.16, h: 0.4, zBack: -0.34, zFront: 0.42, r: 0.06 },
+  arm: { w: 0.16, h: 0.4, zBack: -0.34, zFront: 0.45, r: 0.06 },
   back: { h: 0.58, d: 0.21, tilt: 0.09, zFrontBottom: -0.22, r: 0.07, crown: 0.016 },
   seat: { h: 0.22, zBack: -0.29, zFront: 0.435, r: 0.075, crown: 0.014 },
   legInset: { x: 0.82, z: 0.33 },

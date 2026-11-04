@@ -63,7 +63,16 @@ const Z_GLOW = -1400
  * card's top edge): the icon must live between the index numeral and the
  * title block, whatever the title's line count at this width.
  */
-export type CardMetrics = { textTop: number; topPad: number }
+export type CardMetrics = {
+  /** Top of the title block. */
+  textTop: number
+  /** Bottom of the index numeral (top-left corner). */
+  topPad: number
+  /** Right edge of the index numeral. */
+  indexRight: number
+  /** The card's own inner padding (the numeral's top offset). */
+  inset: number
+}
 
 /**
  * Screen-space extents of an icon in authored units, relative to its floor
@@ -144,9 +153,15 @@ function useCells(small: boolean, metrics: CardMetrics[] | null, extents: Partia
         // Lowest point (any pose) rests GRID.titleClearPx above the title;
         // the icon shrinks if it would otherwise reach the numeral or walls.
         const bottom = m.textTop - GRID.titleClearPx
-        const room = bottom - (m.topPad + GRID.topClearPx) - GRID.liftPx
         const halfW = Math.max(-e.minX, e.maxX)
-        scale = Math.max(1, Math.min(scale, room / (e.maxY - e.minY), (cellW / 2 - GRID.sideClearPx) / halfW))
+        const fit = (topLimit: number) =>
+          Math.max(1, Math.min(scale, (bottom - topLimit - GRID.liftPx) / (e.maxY - e.minY), (cellW / 2 - GRID.sideClearPx) / halfW))
+        // The numeral only owns the top-left corner: an icon that stays clear
+        // of it sideways may rise to the card's inset; otherwise it starts
+        // below the numeral.
+        const loose = fit(m.inset)
+        const clearsIndex = cellW / 2 + e.minX * loose > m.indexRight + GRID.topClearPx
+        scale = clearsIndex ? loose : fit(m.topPad + GRID.topClearPx)
         floor = bottom + e.minY * scale
       }
       return {

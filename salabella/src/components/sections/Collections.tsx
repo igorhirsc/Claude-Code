@@ -49,10 +49,15 @@ export default function Collections() {
         const text = card.querySelector<HTMLElement>('[data-card-text]')!
         const index = card.querySelector<HTMLElement>('[data-card-index]')!
         // offsetTop: layout positions, unaffected by the hover/entrance transforms
-        return { textTop: text.offsetTop, topPad: index.offsetTop + index.offsetHeight }
+        return {
+          textTop: text.offsetTop,
+          topPad: index.offsetTop + index.offsetHeight,
+          indexRight: index.offsetLeft + index.offsetWidth,
+          inset: index.offsetTop,
+        }
       })
       setMetrics((prev) =>
-        prev && prev.length === next.length && prev.every((p, i) => p.textTop === next[i].textTop && p.topPad === next[i].topPad)
+        prev && prev.length === next.length && prev.every((p, i) => (Object.keys(p) as (keyof CardMetrics)[]).every((k) => p[k] === next[i][k]))
           ? prev
           : next,
       )
