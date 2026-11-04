@@ -273,9 +273,14 @@ function Scene({
       {/* a touch of direct key light, from the rig's own key position, for form */}
       <directionalLight position={STUDIO_KEY_POSITION} intensity={0.55} color={palette.linen50} />
       <ArmchairModel swatchId={swatchId} reduced={reduced} onReady={onReady} />
-      {/* one soft contact shadow, captured once (the chair never moves). The
-          callouts live on the overlay layer, so they never cast into it. */}
-      <ContactShadow position={[0, -0.0005, 0]} scale={[3.2, 3.2]} resolution={1024} far={0.65} blur={2.6} opacity={0.55} color={palette.ink900} frames={1} />
+      {/* Two contact shadows, captured once (the chair never moves), same
+          recipe as the hero sofa. ContactShadow's blur step is a fixed UV
+          fraction, so one broad high-res shadow stepped right over the 3–6
+          texel legs and erased them — the chair floated. A tight, small-area
+          shadow grounds the feet; a broad low-res one gives the ambient pool.
+          The callouts live on the overlay layer, so they never cast into either. */}
+      <ContactShadow position={[0, -0.0005, 0]} scale={[1.6, 1.6]} resolution={1024} far={0.1} blur={0.7} opacity={0.75} color={palette.ink900} frames={1} />
+      <ContactShadow position={[0, -0.001, 0]} scale={[3.2, 3.2]} resolution={512} far={0.65} blur={2.2} opacity={0.45} color={palette.ink900} frames={1} />
       {callouts && labels.map((l) => <DimensionCallout key={l.def.id} def={l.def} label={l.label} value={l.value} compact={compact} />)}
       <Rig active={active} reduced={reduced} distance={distance} apiRef={apiRef} />
       {import.meta.env.DEV && <DebugHook />}
